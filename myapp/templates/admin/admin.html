@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Orion Hospital Management System</title>
+    <link rel="stylesheet" href="{{url_for('static', filename ='css/style.css')}}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Orion HMS</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">Manage Clients</a></li>
+                <li><a href="#">Manage Staff</a></li>
+                <li><a href="#">Appointments</a></li>
+                <li><a href="#">Billing</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="admin-panel">
+        <h1>Welcome to the Admin Panel</h1>
+        <p>Manage hospital clients, staff, appointments, billing, reports, and settings efficiently.</p>
+        <div class="admin-features">
+            <div class="feature">
+                <i class="fas fa-user"></i>
+                <h2>Manage Clients</h2>
+                <p>View, edit, and add client information.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-user-md"></i>
+                <h2>Manage Staff</h2>
+                <p>Assign tasks, view staff details, and handle permissions.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-calendar-alt"></i>
+                <h2>Appointments</h2>
+                <p>Schedule and manage appointments for patients and staff.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h2>Billing</h2>
+                <p>Manage billing, payments, and generate invoices.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-chart-bar"></i>
+                <h2>Reports</h2>
+                <p>Generate reports and statistics for hospital operations.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-cog"></i>
+                <h2>Settings</h2>
+                <p>Customize system settings, permissions, and preferences.</p>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2023 Orion Hospital Management System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
