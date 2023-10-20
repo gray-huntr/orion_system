@@ -21,13 +21,13 @@ def home():
 @myapp.route("/login", methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        username = request.form['email']
+        email = request.form['email']
         password = request.form['password']
 
-        if server.authenticate(cursor, username, password):
-            return "Wrong Username or password"
-        else:
+        if server.authenticate(cursor, email, password):
             return redirect('/')
+        else:
+            return "Wrong Username or password"
     else:
         pass
     return render_template("patients/login.html")
@@ -42,4 +42,20 @@ def patient():
 # Route for the signup page
 @myapp.route("/signup", methods=['POST', 'GET'])
 def signup():
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        email = request.form['email']
+        password = request.form['password']
+        repeat_pass = request.form['repeatPass']
+
+        if repeat_pass != password:
+            return ("Passwords Do not Match")
+        
+        if server.signup(cursor=cursor, fullname=fullname, email=email, password=password):
+            return redirect('/')
+        else:
+            return redirect('/signup')
+            
+        
+        
     return render_template("patients/signup.html")

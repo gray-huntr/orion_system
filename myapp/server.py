@@ -8,8 +8,8 @@ def connect():
     return conn.cursor()
 
 
-def authenticate(cursor, username, password):
-    cursor.execute("select * from clients where username = %s and password = %s", (username, password))
+def authenticate(cursor, email, password):
+    cursor.execute("select * from credentials where email = %s and password = %s", (email, password))
     account = cursor.fetchone()
     if account:
         return True
@@ -19,9 +19,9 @@ def authenticate(cursor, username, password):
 
 def signup(cursor, fullname, email, password):
     try:
-        cursor.execute("insert into clients (fullname, email, password) values (%s , %s, %s)",
+        cursor.execute("insert into credentials (fullname, email, password) values (%s , %s, %s)",
                        (fullname, email, password))
-        cursor.conection.commit()
+        cursor.connection.commit()
         return True
     except pymysql.IntegrityError:
         return False
