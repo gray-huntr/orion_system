@@ -1,6 +1,6 @@
 from myapp import myapp
-import pymysql
 from flask import render_template, url_for
+from myapp import sql_db
 
 
 # Route to serve the static files, i.e css
@@ -13,7 +13,8 @@ def serve_static(filename):
 # Route for the index page
 @myapp.route("/")
 def home():
-    conn = initiate
+    conn = sql_db.establish_connection()
+    cursor = conn.cursor
     return render_template("patients/index.html")
 
 
