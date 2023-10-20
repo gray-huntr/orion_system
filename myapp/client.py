@@ -1,5 +1,5 @@
 from myapp import myapp
-
+import pymysql
 from flask import render_template, url_for
 
 
@@ -13,6 +13,7 @@ def serve_static(filename):
 # Route for the index page
 @myapp.route("/")
 def home():
+    conn = initiate
     return render_template("patients/index.html")
 
 
