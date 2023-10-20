@@ -1,6 +1,7 @@
-from myapp import myapp
-from flask import render_template, url_for
-from myapp import sql_db
+from myapp import myapp, sql_db
+from flask import render_template, url_for, request, redirect
+
+cursor = sql_db.establish_connection()
 
 
 # Route to serve the static files, i.e css
@@ -13,14 +14,22 @@ def serve_static(filename):
 # Route for the index page
 @myapp.route("/")
 def home():
-    conn = sql_db.establish_connection()
-    cursor = conn.cursor
     return render_template("patients/index.html")
 
 
 # Route for the login page
-@myapp.route("/login")
+@myapp.route("/login", methods=['POST', 'GET'])
 def login():
+    if request.method == 'POST':
+        username = request.form['email']
+        password = request.form['password']
+
+        if sql_db.authenticate(cursor, username, password) < 1:
+            return "Wrong Username or password"
+        else:
+            return redirect('/')
+    else:
+        pass
     return render_template("patients/login.html")
 
 
