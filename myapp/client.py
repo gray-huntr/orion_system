@@ -1,7 +1,7 @@
 from myapp import myapp, server
 from flask import render_template, url_for, request, redirect
 
-cursor = server.establish_connection()
+cursor = server.connect()
 
 
 # Route to serve the static files, i.e css
@@ -24,7 +24,7 @@ def login():
         username = request.form['email']
         password = request.form['password']
 
-        if server.authenticate(cursor, username, password) < 1:
+        if server.authenticate(cursor, username, password):
             return "Wrong Username or password"
         else:
             return redirect('/')
@@ -40,6 +40,6 @@ def patient():
 
 
 # Route for the signup page
-@myapp.route("/signup")
+@myapp.route("/signup", methods=['POST', 'GET'])
 def signup():
     return render_template("patients/signup.html")
