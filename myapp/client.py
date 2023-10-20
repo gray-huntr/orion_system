@@ -1,7 +1,7 @@
-from myapp import myapp, sql_db
+from myapp import myapp, server
 from flask import render_template, url_for, request, redirect
 
-cursor = sql_db.establish_connection()
+cursor = server.establish_connection()
 
 
 # Route to serve the static files, i.e css
@@ -24,7 +24,7 @@ def login():
         username = request.form['email']
         password = request.form['password']
 
-        if sql_db.authenticate(cursor, username, password) < 1:
+        if server.authenticate(cursor, username, password) < 1:
             return "Wrong Username or password"
         else:
             return redirect('/')
