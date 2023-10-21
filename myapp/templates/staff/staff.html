@@ -29,8 +29,31 @@
         <div class="staff-features">
             <div class="feature">
                 <i class="fas fa-user-plus"></i>
-                <h2>Assign Patients</h2>
-                <p>Assign patients to rooms and staff.</p>
+                <h2>Admit Patients</h2>
+                <p>Admit patients to hospital.</p>
+                <form method="post" action="/admit">
+                    <h3>Patient Information</h3>
+                    <input type="text" required name  = "fullname" placeholder="Full Name" required>
+                    <input type="email" required name  = "email" placeholder="Email" required>
+                    <input type="password"  required name  = "password" placeholder="Password" required>
+                    <input type="password"  required name  = "repeatPassword" placeholder=" Repeat Password" required>
+                    <input type="tel" required name  = "phoneNumber" placeholder="Phone Number" required>
+                    <input type="text" required name  = "homeAddress" placeholder="Home Address" required>
+                    <input type="number" required name  = "age" placeholder="Age" required>
+                    <input type="text" required name  = "sex" placeholder="Sex" required>
+                    <input type="number"  required name  = "idNumber" placeholder="ID Number" required>
+                    <h3>Next of Kin</h3>
+                    <input type="text" required name  = "kinFullname" placeholder="Full Name" required>
+                    <input type="tel" required name  = "kinPhoneNumber" placeholder="Phone Number" required>
+                    <input type="text" required name  = "kinHomeAddress" placeholder="Home Address" required>
+                    <input type="number" required name  = "kinAge" placeholder="Age" required>
+                    <input type="text" required name  = "kinSex" placeholder="Sex" required>
+                    <h3>Admission Info</h3>
+                    <input type="number" required name  = "roomNo" placeholder="Room Number" required>
+                    <input type="text" required name  = "Diagnosis" placeholder="Diagnosis" required>
+                    <input type="datetime-local" required name  = "dateAdmitted" placeholder="Date Admitted" required>
+                    <button type="submit" class="cta-btn">Admit</button>
+                </form>
             </div>
             <div class="feature">
                 <i class="fas fa-chart-line"></i>

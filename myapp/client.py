@@ -23,9 +23,14 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-
-        if server.authenticate(cursor, email, password):
-            return redirect('/')
+        user = server.authenticate(cursor, email, password)
+        if user:
+            if user["isAdmin"]:
+                return redirect('/admin')
+            elif user["isStaff"]:
+                return redirect('/staff')
+            else:
+                return redirect(f'/patient/{user["id"]}')
         else:
             return "Wrong Username or password"
     else:
@@ -34,9 +39,10 @@ def login():
 
 
 # Route for the patient page
-@myapp.route("/patient")
-def patient():
-    return render_template("patients/patient.html")
+@myapp.route("/patient/<int:id>")
+def patient(id):
+    patient = server.search_for_patient(cursor, id)
+    return render_template("patients/patient.html", patient = patient)
 
 
 # Route for the signup page

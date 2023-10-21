@@ -25,6 +25,35 @@
         <h1>Welcome to the Patient Portal</h1>
         <p>Book appointments, access prescriptions, handle billing, view reports, and customize settings.</p>
         <div class="patient-features">
+            <h1>My Information</h1>
+            <table>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Telephone No</th>
+                    <th>Home Address</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                </tr>
+                <tr>
+                    <td>{{patient["fullname"]}}</td>
+                    <td>{{patient["email"]}}</td>
+                    <td>{{patient["telephoneNo"]}}</td>
+                    <td>{{patient["homeAddress"]}}</td>
+                    <td>{{patient["age"]}}</td>
+                    <td>{{patient["sex"]}}</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th>Room No</th>
+                    <th>Diagnosis</th>
+                </tr>
+                <tr>
+                    <td>{{patient["roomNo"]}}</td>
+                    <td>{{patient["diagnosis"]}}</td>
+                </tr>
+            </table>
             <div class="feature">
                 <i class="fas fa-calendar-check"></i>
                 <h2>Appointments</h2>
