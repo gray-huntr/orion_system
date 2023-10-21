@@ -13,7 +13,6 @@ def serve_static(filename):
 # Route for the index page
 @myapp.route("/")
 def home():
-    conn = initiate
     return render_template("patients/index.html")
 
 
