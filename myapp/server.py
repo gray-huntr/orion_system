@@ -1,27 +1,17 @@
 from myapp import myapp as app
-import pymysql
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
+# engine = create_engine(f'mysql://{app.config.DB_USERNAME}@{app.config.DB_HOST}/{app.config.DB_NAME}')
+engine = create_engine(f'mysql://root@localhost/orion_system')
 
-def connect():
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"], database=app.config["DB_NAME"])
-    return conn.cursor()
+Session = sessionmaker(bind=engine)
+session = Session()
 
+Base = declarative_base()
 
-def authenticate(cursor, email, password):
-    cursor.execute("select * from credentials where email = %s and password = %s", (email, password))
-    account = cursor.fetchone()
-    if account:
-        return True
-    else:
-        return False
+def setup_db():
+    print("Setups")
+    Base.metadata.create_all(engine)
 
-
-def signup(cursor, fullname, email, password):
-    try:
-        cursor.execute("insert into credentials (fullname, email, password) values (%s , %s, %s)",
-                       (fullname, email, password))
-        cursor.connection.commit()
-        return True
-    except pymysql.IntegrityError:
-        return False
