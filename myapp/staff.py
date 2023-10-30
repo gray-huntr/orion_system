@@ -83,7 +83,7 @@ def password_change():
                 return redirect("/password_change")
             elif cursor.rowcount == 1:
                 if new_password == repeat_password:
-                    cursor.execute("update patients set firstLogin = '0' where patientId = %s", session['patientId'])
+                    cursor.execute("update patients set firstLogin = '0', password = %s where patientId = %s", (new_password,session['patientId']))
                     conn.commit()
                     flash("Password changed successfully", "success")
                     return redirect("/")
