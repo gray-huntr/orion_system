@@ -1,12 +1,14 @@
 from myapp import myapp as app
-from flask import render_template, url_for, request, redirect, flash
+from flask import render_template, url_for, request, redirect, flash, session
 import pymysql
+
 app.secret_key = app.config['SECRET_KEY']
 
 # connect to database
 conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                        password=app.config["DB_PASSWORD"],
                        database=app.config["DB_NAME"])
+
 
 # Route to serve the static files, i.e css
 @app.route('/static/<path:filename>')
@@ -29,17 +31,28 @@ def login():
         password = request.form['password']
 
         cursor = conn.cursor()
-        cursor.execute("select * from patients where email = %s and password = %s",(email,password))
+        cursor.execute("select * from patients where email = %s and password = %s", (email, password))
         if cursor.rowcount == 0:
             flash("Incorrect username or password, try again", "warning")
             return redirect("/login")
         elif cursor.rowcount == 1:
-            return redirect("/")
+            rows = cursor.fetchall()
+            for row in rows:
+                session['patientId'] = row[0]
+                if row[7] == 1:
+                    flash("Please set a new password before continuing", "info")
+                    return redirect("/password_change")
+                else:
+                    return redirect("/")
         else:
             flash("Error occurred", "danger")
             return redirect("/login")
     else:
-        return render_template("patients/login.html")
+        if 'staffId' in session:
+            session.pop('staffId', None)
+            return redirect('/login')
+        else:
+            return render_template("patients/login.html")
 
 
 # Route for the patient page
