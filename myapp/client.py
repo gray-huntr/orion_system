@@ -8,10 +8,6 @@ conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"
                        password=app.config["DB_PASSWORD"],
                        database=app.config["DB_NAME"])
 
-
-
-# Check first whether there is an already existing account
-
 # Route to serve the static files, i.e css
 @app.route('/static/<path:filename>')
 def serve_static(filename):
