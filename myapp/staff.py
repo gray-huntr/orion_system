@@ -93,6 +93,39 @@ def password_change():
     else:
         return render_template("password_change.html ")
 
+@app.route("/register_patient", methods=['POST','GET'])
+def register_patient():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        email = request.form['email']
+        dob = request.form['dob']
+        number = request.form['number']
+        id_number = request.form['id_number']
+        gender = request.form['gender']
+        blood_group = request.form['blood_group']
+        password = "Patient@orion"
+
+        cursor.execute("select * from patients where email = %s", email)
+        if cursor.rowcount > 0:
+            flash("The email has already been registered, use another one", "warning")
+            return redirect("/register_patient")
+        elif cursor.rowcount == 0:
+            cursor.execute("insert into patients(fullname, email, number, id_number, password, gender, DOB, blood_group)"
+                           " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
+                           (fullname, email, number, id_number, password, gender, dob, blood_group))
+            conn.commit()
+            flash("Patient registered successfully", "success")
+            return redirect("/register_patient")
+    else:
+        return render_template("staff/reception/register_patient.html")
+
+
+
 # Route for the staff page
 # @app.route("/staff")
 # def staff():
