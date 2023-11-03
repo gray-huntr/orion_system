@@ -3,6 +3,11 @@ from flask import render_template, request, flash, redirect, session
 import pymysql
 
 
+
+@app.route("/reception")
+def reception():
+    return render_template("staff/reception/receptionist.html")
+
 @app.route("/staff_login", methods=['POST', 'GET'])
 def staff_login():
     # connect to database
@@ -30,7 +35,7 @@ def staff_login():
                     if category == "Doctor":
                         return render_template("staff/doctor/doctorsPortal.html")
                     elif category == "Receptionist":
-                        return render_template("staff/reception/receptionist.html")
+                        return redirect("/reception")
                     elif category == "Cashier":
                         return render_template("staff/cashier/cashier.html")
                     else:
