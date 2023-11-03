@@ -124,7 +124,28 @@ def register_patient():
     else:
         return render_template("staff/reception/register_patient.html")
 
+@app.route("/appointment_search", methods=['POST','GET'])
+def appointment_search():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        id = request.form['id']
 
+        cursor.execute("select appointments.*, patients.* from appointments "
+                       "inner join patients on appointments.patientId = patients.patientId "
+                       "where patients.patientId = %s or patients.fullname like %s or appointments.appointmentId = %s",
+                       (id, '%' + id + '%', id))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/reception/appointments.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash(f"There is no appointment with the search term: {id}", "info")
+            return redirect("/appointment_search")
+    else:
+        return render_template("staff/reception/appointments.html")
 
 # Route for the staff page
 # @app.route("/staff")
