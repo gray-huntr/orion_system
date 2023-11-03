@@ -147,6 +147,25 @@ def appointment_search():
     else:
         return render_template("staff/reception/appointments.html")
 
+@app.route("/assign_room/<id>", methods=['POST','GET'])
+def assign_room(id):
+    if request.method == 'POST':
+        # connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        room = request.form['room']
+
+        cursor.execute("update appointments set roomNo = %s where appointmentId = %s", (room, id))
+        conn.commit()
+        flash("Room assigned successfully", "success")
+        return redirect("/appointment_search")
+    else:
+        flash("Error occurred, please try again", "danger")
+        return redirect("/appointment_search")
+
+
 # Route for the staff page
 # @app.route("/staff")
 # def staff():
