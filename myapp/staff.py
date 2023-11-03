@@ -28,11 +28,11 @@ def staff_login():
                     return redirect("/password_change")
                 else:
                     if category == "Doctor":
-                        return render_template("staff/doctorsPortal.html")
-                    elif category == "Information desk":
-                        return render_template("staff/informationDesk.html")
+                        return render_template("staff/doctor/doctorsPortal.html")
+                    elif category == "Receptionist":
+                        return render_template("staff/reception/receptionist.html")
                     elif category == "Cashier":
-                        return render_template("staff/cashier.html")
+                        return render_template("staff/cashier/cashier.html")
                     else:
                         flash("Error occurred", "warning")
                         return redirect("/staff_login")
