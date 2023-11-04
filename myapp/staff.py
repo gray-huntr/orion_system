@@ -141,7 +141,8 @@ def appointment_search():
 
         cursor.execute("select appointments.*, patients.* from appointments "
                        "inner join patients on appointments.patientId = patients.patientId "
-                       "where patients.patientId = %s or patients.fullname like %s or appointments.appointmentId = %s",
+                       "where appointments.category = 'online' and (patients.patientId = %s or patients.fullname like %s "
+                       "or appointments.appointmentId = %s) ",
                        (id, '%' + id + '%', id))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
@@ -152,24 +153,66 @@ def appointment_search():
     else:
         return render_template("staff/reception/appointments.html")
 
-@app.route("/assign_room/<id>", methods=['POST','GET'])
-def assign_room(id):
+@app.route("/assign_room/<category>/<id>", methods=['POST','GET'])
+def assign_room(category, id):
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if category == 'online':
+        if request.method == 'POST':
+            room = request.form['room']
+
+            cursor.execute("update appointments set roomNo = %s where appointmentId = %s", (room, id))
+            conn.commit()
+            flash("Room assigned successfully", "success")
+            return redirect("/appointment_search")
+        else:
+            flash("Error occurred, please try again", "danger")
+            return redirect("/appointment_search")
+    elif category == 'walk-in':
+        if request.method == 'POST':
+            # read the appointment id
+            with open("myapp/db_ids/appointment_id", "r") as file:
+                old_id = int(file.read())
+                appointment_id = "A" + str(old_id)
+            room = request.form['room']
+            patient_id = id
+            status = "attending"
+            category = "walk-in"
+
+            cursor.execute("insert into appointments(appointmentId, patientId, roomNo, status, category) "
+                           "values (%s,%s,%s,%s,%s)", (appointment_id,patient_id,room,status,category))
+            conn.commit()
+            old_id += 1
+            # Save the new appointment id to file
+            with open("myapp/db_ids/appointment_id", "w") as file:
+                file.write(str(old_id))
+            flash("Room assigned successfully", "success")
+            return redirect("/walkins")
+
+
+@app.route("/walkins", methods=['POST','GET'])
+def walkins():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
     if request.method == 'POST':
-        # connect to database
-        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                               password=app.config["DB_PASSWORD"],
-                               database=app.config["DB_NAME"])
-        cursor = conn.cursor()
-        room = request.form['room']
+        id = request.form['id']
 
-        cursor.execute("update appointments set roomNo = %s where appointmentId = %s", (room, id))
-        conn.commit()
-        flash("Room assigned successfully", "success")
-        return redirect("/appointment_search")
+        cursor.execute("select * from patients where patientId = %s or fullname like %s",
+                       (id,'%' + id + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/reception/walk-ins.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("Their id no patient with the given id or name, try again", "warning")
+            return redirect("/walkins")
     else:
-        flash("Error occurred, please try again", "danger")
-        return redirect("/appointment_search")
-
+        return render_template("staff/reception/walk-ins.html")
 
 # Route for the staff page
 # @app.route("/staff")
