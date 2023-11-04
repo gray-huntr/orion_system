@@ -130,5 +130,6 @@ def appointments(action):
 def logout():
     if 'patientId' in session:
         session.pop('patientId', None)
+        return redirect("/login")
     if 'staffId' in session:
         session.pop('staffId', None)
