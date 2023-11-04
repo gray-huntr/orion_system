@@ -126,4 +126,6 @@ def appointments(action):
         conn.commit()
         return redirect("/appointments/view")
 
-
+@app.route("/logout")
+def logout():
+    pass
