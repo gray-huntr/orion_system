@@ -133,3 +133,4 @@ def logout():
         return redirect("/login")
     if 'staffId' in session:
         session.pop('staffId', None)
+        return redirect("/staff_login")
