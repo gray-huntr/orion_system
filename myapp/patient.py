@@ -128,4 +128,5 @@ def appointments(action):
 
 @app.route("/logout")
 def logout():
-    pass
+    if 'patientId' in session:
+        session.pop('patientId', None)
