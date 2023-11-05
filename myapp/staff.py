@@ -216,8 +216,23 @@ def walkins():
 
 @app.route("/doctor")
 def doctor():
-    return render_template("staff/doctors/doctorsportal.html")
-
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if 'roomid' in session:
+        cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
+                       "from appointments inner join patients on appointments.patientId = patients.patientId "
+                       "where appointments.roomNo = %s", session['roomid'])
+        if cursor.rowcount == 0:
+            flash("There are no appointments assigned to this room", "info")
+            return render_template("staff/doctors/doctorsportal.html")
+        else:
+            rows = cursor.fetchall()
+            return render_template("staff/doctors/doctorsportal.html", rows=rows)
+    else:
+        return render_template("staff/doctors/doctorsportal.html")
 @app.route("/room", methods=['POST','GET'])
 def room():
     # connect to database

@@ -16,7 +16,7 @@
 {%if 'roomid' in session%}
 <section>
     <div class="container">
-        <table>
+        <table class="table">
             <tr>
                 <th>Appointment ID</th>
                 <th>Patient's ID</th>
@@ -26,10 +26,10 @@
             </tr>
             {%for row in rows%}
             <tr>
-                <td>{{row []}}</td>
-                <td>{{row []}}</td>
-                <td>{{row []}}</td>
-                <td>{{row []}}</td>
+                <td>{{row [0]}}</td>
+                <td>{{row [1]}}</td>
+                <td>{{row [2]}}</td>
+                <td>{{row [3]}}</td>
                 <td>
                     <a href="" class="btn btn-success">Treat</a>
                 </td>
@@ -40,7 +40,7 @@
 </section>
 {%else%}
 <div class="signup-form">
-    <form action="" >
+    <form action="/room" method="post" >
         <label>Input room number below to show records</label>
         <input type="number" required name="room">
         <button class="cta-btn">Submit</button>
