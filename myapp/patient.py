@@ -112,6 +112,10 @@ def appointments(action):
             cursor.execute("insert into appointments(appointmentId, patientId, time, category) VALUES (%s, %s,%s,%s)",
                            (appointment_id,session['patientId'], time, 'online'))
             conn.commit()
+            old_id += 1
+            # Save the new appointment id to file
+            with open("myapp/db_ids/appointment_id", "w") as file:
+                file.write(str(old_id))
             flash("Appointment booked successfully", "success")
             return redirect("/appointments")
         else:
