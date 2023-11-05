@@ -104,10 +104,13 @@ def appointments(action):
     cursor = conn.cursor()
     if action == 'view':
         if request.method == 'POST':
+            with open("myapp/db_ids/appointment_id", "r") as file:
+                old_id = int(file.read())
+                appointment_id = "A" + str(old_id)
             time = request.form['time']
 
-            cursor.execute("insert into appointments(patientId, time) VALUES (%s,%s)",
-                           (session['patientId'], time))
+            cursor.execute("insert into appointments(appointmentId, patientId, time, category) VALUES (%s, %s,%s,%s)",
+                           (appointment_id,session['patientId'], time, 'online'))
             conn.commit()
             flash("Appointment booked successfully", "success")
             return redirect("/appointments")
