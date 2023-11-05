@@ -11,7 +11,41 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 </head>
 <body>
-
-
+{%include 'staff/doctors/doctor_nav.html'%}
+{%include 'msg.html'%}
+{%if 'roomid' in session%}
+<section>
+    <div class="container">
+        <table>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient's ID</th>
+                <th>Patient's name</th>
+                <th>Patient's number</th>
+                <th>Action</th>
+            </tr>
+            {%for row in rows%}
+            <tr>
+                <td>{{row []}}</td>
+                <td>{{row []}}</td>
+                <td>{{row []}}</td>
+                <td>{{row []}}</td>
+                <td>
+                    <a href="" class="btn btn-success">Treat</a>
+                </td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
+</section>
+{%else%}
+<div class="signup-form">
+    <form action="" >
+        <label>Input room number below to show records</label>
+        <input type="number" required name="room">
+        <button class="cta-btn">Submit</button>
+    </form>
+</div>
+{%endfor%}
 </body>
 </html>
