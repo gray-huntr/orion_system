@@ -12,7 +12,13 @@
 </head>
 <body>
 {%include 'staff/doctors/doctor_nav.html'%}
-<section>
+<section class="container">
+    <form action="/treated_patients" method="post">
+        <label>Input patient ID or Treatment ID</label>
+        <input type="text" class="form-control col-md-3"  name="id" required><br>
+        <button class="btn btn-dark">Search</button>
+        <a href="/treated_patients" class="btn btn-primary"> Reset</a>
+    </form>
     <table class="table container">
         <tr>
             <th>Treatment ID</th>
