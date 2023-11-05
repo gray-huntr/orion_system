@@ -13,6 +13,7 @@
 <body>
 {%include 'staff/doctors/doctor_nav.html'%}
 <section class="container">
+    {%include 'msg.html'%}
     <form action="/treated_patients" method="post">
         <label>Input patient ID or Treatment ID</label>
         <input type="text" class="form-control col-md-3"  name="id" required><br>
@@ -31,9 +32,9 @@
         <tr>
             <td>{{row [0]}}</td>
             <td>{{row [1]}}</td>
-            <td><textarea readonly class="rounded" cols="15" rows="4">{{row [3]}}</textarea></td>
-            <td><textarea readonly class="rounded" cols="15" rows="4">{{row [7]}}</textarea></td>
-            <td><textarea readonly class="rounded" cols="15" rows="4">{{row [8]}}</textarea></td>
+            <td><textarea readonly class="rounded" cols="17" rows="4">{{row [3]}}</textarea></td>
+            <td><textarea readonly class="rounded" cols="17" rows="4">{{row [7]}}</textarea></td>
+            <td><textarea readonly class="rounded" cols="17" rows="4">{{row [8]}}</textarea></td>
         </tr>
         {%endfor%}
     </table>

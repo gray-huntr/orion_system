@@ -305,20 +305,31 @@ def treat(id):
             rows = cursor.fetchall()
             return render_template("staff/doctors/treat.html", rows=rows)
 
-@app.route("/treated_patients")
+@app.route("/treated_patients", methods=["POST",'GET'])
 def treated_patients():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from treatment where doctorid = %s", session['staffId'])
-    if cursor.rowcount > 0:
-        rows = cursor.fetchall()
-        return render_template("staff/doctors/treated.html", rows=rows)
-    elif cursor.rowcount == 0:
-        flash("You have not treated any patients", "info")
-        return render_template("staff/doctors/treated.html")
+    if request.method == 'POST':
+        id = request.form['id']
+
+        cursor.execute("select * from treatment where treatmentid =%s or patientid = %s",(id, id))
+        if cursor.rowcount == 0:
+            flash("There is no treatment record with the given id, try another", "danger")
+            return redirect("/treated_patients")
+        elif cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/doctors/treated.html", rows=rows)
+    else:
+        cursor.execute("select * from treatment where doctorid = %s", session['staffId'])
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/doctors/treated.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("You have not treated any patients", "info")
+            return render_template("staff/doctors/treated.html")
 
 # Route for the staff logout page
 @app.route("/logout_staff")
