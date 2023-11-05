@@ -133,7 +133,7 @@ def appointments(action):
         conn.commit()
         return redirect("/appointments/view")
 
-@app.route("/logout")
+@app.route("/logout_patient")
 def logout():
     if 'patientId' in session:
         session.pop('patientId', None)

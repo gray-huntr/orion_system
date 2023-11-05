@@ -239,7 +239,9 @@ def room():
             flash("Error occurred, try again", "danger")
             return redirect("/doctor")
 
-# Route for the staff page
-# @app.route("/staff")
-# def staff():
-#     return render_template("staff/staff_login.html")
+# Route for the staff logout page
+@app.route("/logout_patient")
+def logout():
+    session.pop('staffId', None)
+    session.pop('roomid', None)
+    return redirect("/staff_login")
