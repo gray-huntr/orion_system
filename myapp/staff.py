@@ -220,7 +220,7 @@ def walkins():
     else:
         return render_template("staff/reception/walk-ins.html")
 
-
+#Routes for doctors
 @app.route("/doctor")
 def doctor():
     # connect to database
@@ -305,6 +305,10 @@ def treat(id):
             rows = cursor.fetchall()
             return render_template("staff/doctors/treat.html", rows=rows)
 
+@app.route("/treated_patients")
+def treated_patients():
+
+    return render_template("staff/doctors/treated.html")
 
 # Route for the staff logout page
 @app.route("/logout_staff")
