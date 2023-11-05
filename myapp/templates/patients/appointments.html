@@ -15,7 +15,7 @@
 {%include 'patients/patient_nav.html'%}
 {%include 'msg.html'%}
 <section class="row">
-    <div class="col-md-4 signup-form">
+    <div class="col-md-3 signup-form">
         <h1>Book appointment</h1>
         <form action="/appointments/view" method="post">
             <input type="datetime-local" id="selected_date" required name = "time" >
@@ -23,7 +23,7 @@
         </form>
 
     </div>
-    <div class="col-md-8">
+    <div class="col-md-9">
         <table class="table ">
             <tr>
                 <th>Appointment ID</th>
@@ -31,6 +31,7 @@
                 <th>Room Number</th>
                 <th>Time</th>
                 <th>Status</th>
+                <th>Category</th>
                 <th>Action</th>
             </tr>
             {%for row in rows%}
@@ -40,12 +41,19 @@
                 <td>{{row [2]}}</td>
                 <td>{{row [3]}}</td>
                 <td>{{row [4]}}</td>
+                <td>{{row [5]}}</td>
+                {% if row [5] == 'online'%}
                 <td>
                     <form action="/appointments/cancel" method="post">
                         <input type="hidden" value="{{row [0]}}" name="id">
                         <button type="submit" class="btn btn-danger">Cancel</button>
                     </form>
                 </td>
+                {%else%}
+                <td>
+
+                </td>
+                {%endif%}
             </tr>
             {%endfor%}
         </table>
