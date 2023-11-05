@@ -240,8 +240,8 @@ def room():
             return redirect("/doctor")
 
 # Route for the staff logout page
-@app.route("/logout_patient")
-def logout():
+@app.route("/logout_staff")
+def logout_staff():
     session.pop('staffId', None)
     session.pop('roomid', None)
     return redirect("/staff_login")

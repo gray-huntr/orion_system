@@ -134,10 +134,6 @@ def appointments(action):
         return redirect("/appointments/view")
 
 @app.route("/logout_patient")
-def logout():
-    if 'patientId' in session:
-        session.pop('patientId', None)
-        return redirect("/login")
-    if 'staffId' in session:
-        session.pop('staffId', None)
-        return redirect("/staff_login")
+def logout_patient():
+    session.pop('patientId', None)
+    return redirect("/login")
