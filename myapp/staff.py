@@ -33,7 +33,7 @@ def staff_login():
                     return redirect("/password_change")
                 else:
                     if category == "Doctor":
-                        return render_template("staff/doctor/doctorsPortal.html")
+                        return render_template("staff/doctor/doctorsportal.html")
                     elif category == "Receptionist":
                         return redirect("/reception")
                     elif category == "Cashier":
