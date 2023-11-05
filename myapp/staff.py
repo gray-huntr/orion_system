@@ -315,7 +315,7 @@ def treated_patients():
     cursor.execute("select * from treatment where doctorid = %s", session['staffId'])
     if cursor.rowcount > 0:
         rows = cursor.fetchall()
-        return render_template("staff/doctors/treated.html")
+        return render_template("staff/doctors/treated.html", rows=rows)
     elif cursor.rowcount == 0:
         flash("You have not treated any patients", "info")
         return render_template("staff/doctors/treated.html")
