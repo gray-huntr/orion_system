@@ -117,9 +117,9 @@ def appointments(action):
             with open("myapp/db_ids/appointment_id", "w") as file:
                 file.write(str(old_id))
             flash("Appointment booked successfully", "success")
-            return redirect("/appointments")
+            return redirect("/appointments/view")
         else:
-            cursor.execute("select * from appointments")
+            cursor.execute("select * from appointments where patientId = %s", session['patientId'])
             if cursor.rowcount == 0:
                 flash("You haven't made any appointments yet", "info")
                 return render_template("patients/appointments.html")
