@@ -83,7 +83,8 @@ def password_change():
                 return redirect("/password_change")
             elif cursor.rowcount == 1:
                 if new_password == repeat_password:
-                    cursor.execute("update patients set firstLogin = '0', password = %s where patientId = %s", (new_password,session['patientId']))
+                    cursor.execute("update patients set firstLogin = '0', password = %s where patientId = %s",
+                                   (new_password, session['patientId']))
                     conn.commit()
                     flash("Password changed successfully", "success")
                     return redirect("/")
@@ -93,12 +94,14 @@ def password_change():
     else:
         return render_template("password_change.html ")
 
+
 #     Routes for receptionists
 @app.route("/reception")
 def reception():
     return render_template("staff/reception/receptionist.html")
 
-@app.route("/register_patient", methods=['POST','GET'])
+
+@app.route("/register_patient", methods=['POST', 'GET'])
 def register_patient():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -120,16 +123,18 @@ def register_patient():
             flash("The email has already been registered, use another one", "warning")
             return redirect("/register_patient")
         elif cursor.rowcount == 0:
-            cursor.execute("insert into patients(fullname, email, number, id_number, password, gender, DOB, blood_group)"
-                           " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
-                           (fullname, email, number, id_number, password, gender, dob, blood_group))
+            cursor.execute(
+                "insert into patients(fullname, email, number, id_number, password, gender, DOB, blood_group)"
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
+                (fullname, email, number, id_number, password, gender, dob, blood_group))
             conn.commit()
             flash("Patient registered successfully", "success")
             return redirect("/register_patient")
     else:
         return render_template("staff/reception/register_patient.html")
 
-@app.route("/appointment_search", methods=['POST','GET'])
+
+@app.route("/appointment_search", methods=['POST', 'GET'])
 def appointment_search():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -153,7 +158,8 @@ def appointment_search():
     else:
         return render_template("staff/reception/appointments.html")
 
-@app.route("/assign_room/<category>/<id>", methods=['POST','GET'])
+
+@app.route("/assign_room/<category>/<id>", methods=['POST', 'GET'])
 def assign_room(category, id):
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -183,7 +189,7 @@ def assign_room(category, id):
             category = "walk-in"
 
             cursor.execute("insert into appointments(appointmentId, patientId, roomNo, status, category) "
-                           "values (%s,%s,%s,%s,%s)", (appointment_id,patient_id,room,status,category))
+                           "values (%s,%s,%s,%s,%s)", (appointment_id, patient_id, room, status, category))
             conn.commit()
             old_id += 1
             # Save the new appointment id to file
@@ -193,7 +199,7 @@ def assign_room(category, id):
             return redirect("/walkins")
 
 
-@app.route("/walkins", methods=['POST','GET'])
+@app.route("/walkins", methods=['POST', 'GET'])
 def walkins():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -204,7 +210,7 @@ def walkins():
         id = request.form['id']
 
         cursor.execute("select * from patients where patientId = %s or fullname like %s",
-                       (id,'%' + id + '%'))
+                       (id, '%' + id + '%'))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/reception/walk-ins.html", rows=rows)
@@ -213,6 +219,7 @@ def walkins():
             return redirect("/walkins")
     else:
         return render_template("staff/reception/walk-ins.html")
+
 
 @app.route("/doctor")
 def doctor():
@@ -233,7 +240,9 @@ def doctor():
             return render_template("staff/doctors/doctorsportal.html", rows=rows)
     else:
         return render_template("staff/doctors/doctorsportal.html")
-@app.route("/room", methods=['POST','GET'])
+
+
+@app.route("/room", methods=['POST', 'GET'])
 def room():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -254,23 +263,48 @@ def room():
             flash("Error occurred, try again", "danger")
             return redirect("/doctor")
 
-@app.route("/treat/<id>")
+
+@app.route("/treat/<id>", methods=['POST', 'GET'])
 def treat(id):
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
+    if request.method == 'POST':
+        # read the treatment id
+        with open("myapp/db_ids/treatment_id", "r") as file:
+            old_id = int(file.read())
+            treatment_id = "T" + str(old_id)
+        appointment_id = request.form['appointment_id']
+        patient_id = request.form['patient_id']
+        symptoms = request.form['symptoms']
+        diagnosis = request.form['diagnosis']
+        prescription = request.form['prescription']
 
-    cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
+        cursor.execute("insert into treatment(treatmentid, patientid, appointmentid, symptoms, roomno, "
+                       "diagnosis, Prescription, doctorid) values (%s,%s,%s,%s,%s,%s,%s,%s)",
+                       (treatment_id, patient_id, appointment_id, symptoms, session['roomid'], diagnosis, prescription,
+                        session['staffId']))
+        conn.commit()
+        old_id += 1
+        # Save the new treatment id to file
+        with open("myapp/db_ids/treatment_id", "w") as file:
+            file.write(str(old_id))
+        flash("Record added successfully", "success")
+        flash("Direct patient to phamarcist for medication", "info")
+        return redirect(f"/treat/{id}")
+    else:
+        cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
                        "from appointments inner join patients on appointments.patientId = patients.patientId "
                        "where appointments.appointmentId = %s", id)
-    if cursor.rowcount == 0:
-        flash("The id given does not exist", "danger")
-        return redirect("/doctor")
-    elif cursor.rowcount > 0:
-        rows = cursor.fetchall()
-        return render_template("staff/doctors/treat.html", rows=rows)
+        if cursor.rowcount == 0:
+            flash("The id given does not exist", "danger")
+            return redirect("/doctor")
+        elif cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/doctors/treat.html", rows=rows)
+
 
 # Route for the staff logout page
 @app.route("/logout_staff")

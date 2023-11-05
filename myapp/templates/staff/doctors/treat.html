@@ -11,6 +11,45 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 </head>
 <body>
-
+{%include 'staff/doctors/doctor_nav.html'%}
+<div class="container">{%include 'msg.html'%}</div>
+<section class="signup-form  col-md-6">
+    {%for row in rows%}
+    <form action="/treat/{{row [0]}}" method="post">
+        <div class="col">
+            <label>Appointment Id</label>
+            <span class="form-control"><input type="hidden" name="appointment_id" value="{{row [0]}}">{{row [0]}}</span>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col">
+                <label>Patient ID</label>
+                <span class="form-control"><input type="hidden" name="patient_id" value="{{row [1]}}">{{row [1]}}</span>
+            </div>
+            <div class="col">
+                <label>Patient name</label>
+                <span class="form-control text-nowrap ">{{row [2]}}</span>
+            </div>
+            <div class="col">
+                <label>Patient number</label>
+                <span class="form-control ">{{row [3]}}</span>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="ml-3">
+                <textarea name="symptoms" class="rounded" cols="30" rows="10" placeholder="Enter patient's symptoms here"></textarea>
+            </div>
+            <div class="ml-4">
+                <textarea name="diagnosis" class="rounded" cols="30" rows="10" placeholder="Enter Diagnosis here"></textarea>
+            </div>
+            <div class="ml-4">
+                <textarea name="prescription" class="rounded" cols="30" rows="10" placeholder="Enter prescription here"></textarea>
+            </div>
+        </div>
+        <button class="cta-btn">Submit</button>
+    </form>
+    {%endfor%}
+</section>
 </body>
 </html>
