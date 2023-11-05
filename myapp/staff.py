@@ -254,6 +254,24 @@ def room():
             flash("Error occurred, try again", "danger")
             return redirect("/doctor")
 
+@app.route("/treat/<id>")
+def treat(id):
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+
+    cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
+                       "from appointments inner join patients on appointments.patientId = patients.patientId "
+                       "where appointments.appointmentId = %s", id)
+    if cursor.rowcount == 0:
+        flash("The id given does not exist", "danger")
+        return redirect("/doctor")
+    elif cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("staff/doctors/treat.html", rows=rows)
+
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():
