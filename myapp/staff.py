@@ -218,8 +218,26 @@ def walkins():
 def doctor():
     return render_template("staff/doctors/doctorsportal.html")
 
+@app.route("/room", methods=['POST','GET'])
+def room():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        room = request.form['room']
 
-
+        cursor.execute("select * from rooms where roomid = %s", room)
+        if cursor.rowcount == 0:
+            flash("The room number you entered does not exist, Try again", "info")
+            return redirect("/doctor")
+        elif cursor.rowcount == 1:
+            session['roomid'] = room
+            return redirect("/doctor")
+        else:
+            flash("Error occurred, try again", "danger")
+            return redirect("/doctor")
 
 # Route for the staff page
 # @app.route("/staff")
