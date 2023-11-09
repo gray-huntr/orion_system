@@ -109,6 +109,9 @@ def register_patient():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     if request.method == 'POST':
+        with open("myapp/db_ids/patient_id", "r") as file:
+            old_id = int(file.read())
+            patient_id = "P" + str(old_id)
         fullname = request.form['fullname']
         email = request.form['email']
         dob = request.form['dob']
@@ -128,6 +131,10 @@ def register_patient():
                 " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
                 (fullname, email, number, id_number, password, gender, dob, blood_group))
             conn.commit()
+            old_id += 1
+            # Save the new appointment id to file
+            with open("myapp/db_ids/patient_id", "w") as file:
+                file.write(str(old_id))
             flash("Patient registered successfully", "success")
             return redirect("/register_patient")
     else:
