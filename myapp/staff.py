@@ -87,7 +87,7 @@ def password_change():
                                    (new_password, session['patientId']))
                     conn.commit()
                     flash("Password changed successfully", "success")
-                    return redirect("/")
+                    return redirect("/patient")
                 else:
                     flash("New passwords do not match", "danger")
                     return redirect("/password_change")
