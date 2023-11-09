@@ -39,7 +39,7 @@ def login():
             rows = cursor.fetchall()
             for row in rows:
                 session['patientId'] = row[0]
-                if row[7] == 1:
+                if row[9] == 1:
                     flash("Please set a new password before continuing", "info")
                     return redirect("/password_change")
                 else:
