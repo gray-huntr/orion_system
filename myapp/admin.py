@@ -17,6 +17,9 @@ def admin():
 def staff_management(action):
     if action == 'add':
         if request.method == 'POST':
+            with open("myapp/db_ids/staff_id", "r") as file:
+                old_id = int(file.read())
+                staff_id = "S" + str(old_id)
             name = request.form['name']
             email = request.form['email']
             number = request.form['number']
@@ -29,9 +32,14 @@ def staff_management(action):
                 flash("The email address already exists, use another one", "info")
                 return redirect("/staff_management/add")
             elif cursor.rowcount == 0:
-                cursor.execute("insert into staff(fullName, email, number, password, category) values (%s,%s,%s,%s,%s)",
-                               (name,email,number,password,category))
+                cursor.execute("insert into staff(staffId, fullName, email, number, password, category) "
+                               "values (%s,%s,%s,%s,%s,%s)",
+                               (staff_id,name,email,number,password,category))
                 conn.commit()
+                old_id += 1
+                # Save the new appointment id to file
+                with open("myapp/db_ids/staff_id", "w") as file:
+                    file.write(str(old_id))
                 flash("Record added successfully", "success")
                 return redirect("/staff_management/add")
         else:
