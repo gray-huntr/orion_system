@@ -33,6 +33,8 @@ def staff_login():
                         return redirect("/reception")
                     elif category == "Cashier":
                         return render_template("staff/cashier/cashier.html")
+                    elif category == "Pharmacist":
+                        return redirect("/pharmacist")
                     else:
                         flash("Error occurred", "warning")
                         return redirect("/staff_login")
