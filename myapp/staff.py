@@ -350,14 +350,14 @@ def pharmacist():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     if request.method == 'POST':
-        search_term = request.form['search_term']
         action = request.form['action']
         if action == 'search':
-            cursor.execute("select treatment.appointmentId, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription"
+            search_term = request.form['search_term']
+            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription"
                            " from treatment "
                            "inner join patients on treatment.patientId = patients.patientId "
-                           "where treatment.appointmentid or patients.patientId = %s or patients.fullname like %s ",
-                           (search_term, '%' + search_term + '%', search_term))
+                           "where treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s ",
+                           (search_term, search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
                 return render_template("staff/pharmacist/pharmacist.html", rows=rows)
@@ -369,7 +369,7 @@ def pharmacist():
             cursor.execute("update treatment set pharmacist_id = %s where treatmentid = %s", (session['staffId'], id))
             conn.commit()
             flash("Direct patient to cashier", "info")
-            return redirect("/phamarcist")
+            return redirect("/pharmacist")
     else:
         return render_template("staff/pharmacist/pharmacist.html")
 

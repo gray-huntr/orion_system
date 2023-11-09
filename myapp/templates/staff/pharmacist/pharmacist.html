@@ -11,9 +11,9 @@
 </head>
 </head>
 <body>
-{%include 'msg.html'%}
 {%include 'staff/pharmacist/pharmacist_nav.html'%}
-<section>
+{%include 'msg.html'%}
+<section class="row">
     <div class="col-md-4 signup-form ">
         <form action="/pharmacist" method="post">
             <p>Input appointment id, patient id or name of patient to display their information</p>
@@ -23,11 +23,37 @@
         </form>
     </div>
 
-    <div>
-
+    <div class="col-md-6 signup-form text-left">
+        {%for row in rows%}
+        <div class="row">
+            <div class="col">
+                <label>Patient ID</label>
+                <span class="form-control">{{row [2]}}</span>
+            </div>
+            <div class="col">
+                <label>Patient name</label>
+                <span class="form-control">{{row [1]}}</span>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-6">
+                <label>Diagnosis</label>
+                <textarea readonly cols="20" rows="10" class="form-control">{{row [3]}}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label>Prescription</label>
+                <textarea readonly cols="20" rows="10" class="form-control">{{row [4]}}</textarea>
+            </div>
+        </div>
+        <br>
+        <form action="/pharmacist", method="post">
+            <input type="hidden" value="{{row [0]}}" name="id">
+            <input type="hidden" name="action" value="update">
+            <button class="btn btn-dark">Done prescribing</button>
+        </form>
+        {%endfor%}
     </div>
 </section>
-
-
 </body>
 </html>
