@@ -339,6 +339,18 @@ def treated_patients():
             flash("You have not treated any patients", "info")
             return render_template("staff/doctors/treated.html")
 
+# Route for pharmacist
+@app.route("/pharmacist")
+def pharmacist():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from treatment")
+    rows = cursor.fetchall()
+    return render_template("staff/pharmacist/pharmacist.html", rows=rows)
+
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():
