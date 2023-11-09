@@ -281,11 +281,12 @@ def treat(id):
         symptoms = request.form['symptoms']
         diagnosis = request.form['diagnosis']
         prescription = request.form['prescription']
+        tests = request.form['tests']
 
         cursor.execute("insert into treatment(treatmentid, patientid, appointmentid, symptoms, roomno, "
-                       "diagnosis, Prescription, doctorid) values (%s,%s,%s,%s,%s,%s,%s,%s)",
+                       "diagnosis, Prescription, test_done, doctorid) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                        (treatment_id, patient_id, appointment_id, symptoms, session['roomid'], diagnosis, prescription,
-                        session['staffId']))
+                        tests, session['staffId']))
         conn.commit()
         old_id += 1
         # Save the new treatment id to file
