@@ -127,9 +127,9 @@ def register_patient():
             return redirect("/register_patient")
         elif cursor.rowcount == 0:
             cursor.execute(
-                "insert into patients(fullname, email, number, id_number, password, gender, DOB, blood_group)"
-                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
-                (fullname, email, number, id_number, password, gender, dob, blood_group))
+                "insert into patients(patientId, fullname, email, number, id_number, password, gender, DOB, blood_group)"
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (patient_id, fullname, email, number, id_number, password, gender, dob, blood_group))
             conn.commit()
             old_id += 1
             # Save the new appointment id to file
