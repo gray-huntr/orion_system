@@ -340,16 +340,36 @@ def treated_patients():
             return render_template("staff/doctors/treated.html")
 
 # Route for pharmacist
-@app.route("/pharmacist")
+@app.route("/pharmacist", methods=['POST','GET'])
 def pharmacist():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from treatment")
-    rows = cursor.fetchall()
-    return render_template("staff/pharmacist/pharmacist.html", rows=rows)
+    if request.method == 'POST':
+        search_term = request.form['search_term']
+        action = request.form['action']
+        if action == 'search':
+            cursor.execute("select treatment.appointmentId, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription"
+                           " from treatment "
+                           "inner join patients on treatment.patientId = patients.patientId "
+                           "where treatment.appointmentid or patients.patientId = %s or patients.fullname like %s ",
+                           (search_term, '%' + search_term + '%', search_term))
+            if cursor.rowcount > 0:
+                rows = cursor.fetchall()
+                return render_template("staff/pharmacist/pharmacist.html", rows=rows)
+            elif cursor.rowcount == 0:
+                flash("There is no record with the given search term", "info")
+                return redirect("/pharmacist")
+        elif action == 'update':
+            id = request.form['id']
+            cursor.execute("update treatment set pharmacist_id = %s where treatmentid = %s", (session['staffId'], id))
+            conn.commit()
+            flash("Direct patient to cashier", "info")
+            return redirect("/phamarcist")
+    else:
+        return render_template("staff/pharmacist/pharmacist.html")
 
 # Route for the staff logout page
 @app.route("/logout_staff")
