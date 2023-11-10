@@ -27,7 +27,7 @@
             <th>Appointment ID</th>
             <th>Test(s) cost</th>
             <th>Total</th>
-            <th>Date</th>
+            <th>Discharge date</th>
         </tr>
         {%for row in rows%}
         <tr>
@@ -36,7 +36,7 @@
             <td>{{row [1]}}</td>
             <td><textarea readonly class="rounded" cols="17" rows="3">{{row [2]}}</textarea></td>
             <td>{{row [3]}}</td>
-            <td>{{row [8]}}</td>
+            <td>{{row [4]}}</td>
         </tr>
         {%endfor%}
     </table>

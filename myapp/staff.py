@@ -418,23 +418,37 @@ def cashier():
         tests = cursor.fetchall()
         return render_template("staff/cashier/cashier.html", tests=tests)
 
-@app.route("/cleared")
+@app.route("/cleared", methods=['POST','GET'])
 def cleared():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
+    if request.method == 'POST':
+        search_term = request.form['search_term']
 
-    cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
-                   "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
-                   "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s", session['staffId'])
-    if cursor.rowcount > 0:
-        rows = cursor.fetchall()
-        return render_template("staff/cashier/cleared.html", rows=rows)
+        cursor.execute(
+            "select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
+            "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+            "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s "
+            "and (billing.patientId = %s or patients.fullname like %s)",(session['staffId'], search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/cashier/cleared.html", rows=rows)
+        else:
+            flash("The search term you used does not exist in your records", "info")
+            return redirect("/cleared")
     else:
-        flash("You have not cleared any patients", "info")
-        return render_template("staff/cashier/cleared.html")
+        cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
+                       "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+                       "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s", session['staffId'])
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/cashier/cleared.html", rows=rows)
+        else:
+            flash("You have not cleared any patients", "info")
+            return render_template("staff/cashier/cleared.html")
 
 
 # Route for the staff logout page
