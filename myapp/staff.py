@@ -417,6 +417,26 @@ def cashier():
         cursor.execute("select * from tests")
         tests = cursor.fetchall()
         return render_template("staff/cashier/cashier.html", tests=tests)
+
+@app.route("/cleared")
+def cleared():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+
+    cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.date, billing.date, "
+                   "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+                   "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s", session['staffId'])
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("staff/cashier/cleared.html", rows=rows)
+    else:
+        flash("You have not cleared any patients", "info")
+        return render_template("staff/cashier/cleared.html")
+
+
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():
