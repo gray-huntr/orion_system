@@ -426,7 +426,7 @@ def cleared():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
 
-    cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.date, billing.date, "
+    cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
                    "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
                    "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s", session['staffId'])
     if cursor.rowcount > 0:
