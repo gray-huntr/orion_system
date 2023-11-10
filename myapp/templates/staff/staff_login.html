@@ -9,23 +9,12 @@
 
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">Orion HMS</div>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
     <div class="container">{% include 'msg.html'%}</div>
     <section class="signup-form">
         <h1>Sign In</h1>
-        <form action="/login" method="post">
-            <input type="email" required name  = "email" placeholder="Email" required>
-            <input type="password"  required name  = "password"placeholder="Password" required>
+        <form action="/staff_login" method="post">
+            <input type="email" required name  = "email" placeholder="Email" >
+            <input type="password"  required name  = "password"placeholder="Password" >
             <button type="submit" class="cta-btn">Sign In</button>
         </form>
     </section>
