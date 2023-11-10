@@ -21,11 +21,11 @@
     </div>
     <div class="signup-form col-md-6">
         {%for row in rows%}
-        <form action="">
+        <form action="/cashier" method="post">
             <div class="row">
                 <div class="col">
                     <label>Patient ID</label>
-                    <span class="form-control"><input type="hidden" value="{{row [2]}}" name="id">{{row [2]}}</span>
+                    <span class="form-control"><input type="hidden" value="{{row [2]}}" name="patient_id">{{row [2]}}</span>
                 </div>
                 <div class="col">
                     <label>Patient name</label>
@@ -47,7 +47,9 @@
                 </div>
             </div>
             <input type="hidden" value="{{row [4]}}" name="appointment_id">
+            <input type="hidden" value="{{row [5]}}" name="treatment_id">
             <input type="hidden" name="action" value="clear">
+            <button class="btn btn-dark">Clear patient</button>
             {%endfor%}
         </form>
 

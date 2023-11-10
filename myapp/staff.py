@@ -386,8 +386,8 @@ def cashier():
         action = request.form['action']
         if action == 'search':
             search_term = request.form['search_term']
-            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, treatment.prescription, treatment.treatmentid"
-                           " from treatment "
+            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, "
+                           "treatment.prescription, treatment.appointmentid, treatment.treatmentid from treatment "
                            "inner join patients on treatment.patientId = patients.patientId "
                            "where patients.patientId = %s or patients.fullname like %s ",
                            ( search_term, '%' + search_term + '%'))
@@ -399,6 +399,20 @@ def cashier():
             elif cursor.rowcount == 0:
                 flash("There is no record with the given search term", "info")
                 return redirect("/cashier")
+        elif action == 'clear':
+            patient_id = request.form['patient_id']
+            appointment_id = request.form['appointment_id']
+            treatment_id = request.form['treatment_id']
+            test_cost = request.form['test_cost']
+            total = request.form['total']
+
+            cursor.execute("insert into billing(patientId, appointmentid, test_cost, total) VALUES (%s,%s,%s,%s)",
+                           (patient_id, appointment_id, test_cost, total))
+            cursor.execute("update treatment set cashier_id = %s where treatmentid = %s", (session['staffId'], treatment_id))
+            conn.commit()
+            flash("Patient has been billed successfully", "info")
+            return redirect("/cashier")
+
     else:
         return render_template("staff/cashier/cashier.html")
 # Route for the staff logout page
