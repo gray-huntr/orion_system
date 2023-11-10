@@ -373,6 +373,11 @@ def pharmacist():
     else:
         return render_template("staff/pharmacist/pharmacist.html")
 
+
+#Routes for cashier
+@app.route("/cashier")
+def cashier():
+    return render_template("staff/cashier/cashier.html")
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():
