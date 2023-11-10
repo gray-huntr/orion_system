@@ -386,7 +386,7 @@ def cashier():
         action = request.form['action']
         if action == 'search':
             search_term = request.form['search_term']
-            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, treatment.prescription"
+            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, treatment.prescription, treatment.treatmentid"
                            " from treatment "
                            "inner join patients on treatment.patientId = patients.patientId "
                            "where patients.patientId = %s or patients.fullname like %s ",

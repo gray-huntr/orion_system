@@ -21,40 +21,41 @@
     </div>
     <div class="signup-form col-md-6">
         {%for row in rows%}
-        <div class="row">
-            <div class="col">
-                <label>Patient ID</label>
-                <span class="form-control">{{row [2]}}</span>
-            </div>
-            <div class="col">
-                <label>Patient name</label>
-                <span class="form-control">{{row [1]}}</span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <label>Tests done</label>
-                <textarea name="" cols="30" rows="10" class="rounded">{{row [0]}}</textarea>
-            </div>
-            <div class="col">
-                <label>Billing</label>
-                <textarea name="" id="selectedValues" cols="30" rows="10" class="rounded"></textarea>
-            </div>
-            <div class="col">
-                <label>Total</label>
-                <input type="number" class="form-control" value="" id="totalValue">
-            </div>
-        </div>
         <form action="">
+            <div class="row">
+                <div class="col">
+                    <label>Patient ID</label>
+                    <span class="form-control"><input type="hidden" value="{{row [2]}}" name="id">{{row [2]}}</span>
+                </div>
+                <div class="col">
+                    <label>Patient name</label>
+                    <span class="form-control">{{row [1]}}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Tests done</label>
+                    <textarea name="" cols="30" rows="10" class="rounded">{{row [0]}}</textarea>
+                </div>
+                <div class="col">
+                    <label>Billing</label>
+                    <textarea name="test_cost" id="selectedValues" cols="30" rows="10" class="rounded"></textarea>
+                </div>
+                <div class="col">
+                    <label>Total</label>
+                    <input type="number" class="form-control" value="" id="totalValue" name="total">
+                </div>
+            </div>
+            <input type="hidden" value="{{row [4]}}" name="appointment_id">
             <input type="hidden" name="action" value="clear">
-            <button class="btn btn-dark">Clear patient</button>
+            {%endfor%}
         </form>
-        {%endfor%}
+
     </div>
     <div class="col-md-3">
         <label>Select the tests done below to charge them</label><br>
         {%for row in tests%}
-        <input type="checkbox" class="myCheckbox" value="{{row [1]}}...{{row [2]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
+        <input type="checkbox" class="myCheckbox" value="{{row [1]}}= KSH: {{row [2]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
         {%endfor%}
     </div>
 </section>
@@ -63,7 +64,10 @@
     var checkboxes = document.querySelectorAll('.myCheckbox');
 
     // Get the span to display the total value
-    var totalValuebox = document.getElementById('totalValue');
+    var totalValueBox = document.getElementById('totalValue');
+
+    // Get the textarea to display selected values
+    var textarea = document.getElementById('selectedValues');
 
     // Initialize total value
     var totalValue = 0;
@@ -76,13 +80,25 @@
                 totalValue += parseInt(checkbox.getAttribute('data-valuetwo'));
             }
         });
-        totalValuebox.value = totalValue;
+        totalValueBox.value = totalValue;
+    }
+
+    // Function to update textarea with selected values
+    function updateTextarea() {
+        var selectedValues = [];
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedValues.push(checkbox.value);
+            }
+        });
+        textarea.value = selectedValues.join('\n');
     }
 
     // Attach event listeners to checkboxes
     checkboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
             updateTotalValue();
+            updateTextarea();
         });
     });
 </script>
