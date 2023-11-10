@@ -393,7 +393,9 @@ def cashier():
                            ( search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
-                return render_template("staff/cashier/cashier.html", rows=rows)
+                cursor.execute("select * from tests")
+                tests = cursor.fetchall()
+                return render_template("staff/cashier/cashier.html", rows=rows, tests=tests)
             elif cursor.rowcount == 0:
                 flash("There is no record with the given search term", "info")
                 return redirect("/cashier")

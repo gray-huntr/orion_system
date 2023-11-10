@@ -42,7 +42,7 @@
             </div>
             <div class="col">
                 <label>Total</label>
-                <input type="number" class="form-control" value="">
+                <input type="number" class="form-control" value="" id="totalValue">
             </div>
         </div>
         <form action="">
@@ -52,9 +52,42 @@
         {%endfor%}
     </div>
     <div class="col-md-3">
-
+        <label>Select the tests done below to charge them</label><br>
+        {%for row in tests%}
+        <input type="checkbox" class="myCheckbox" value="{{row [1]}}...{{row [2]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
+        {%endfor%}
     </div>
 </section>
+<script>
+// Get all checkboxes by class
+    var checkboxes = document.querySelectorAll('.myCheckbox');
+
+    // Get the span to display the total value
+    var totalValuebox = document.getElementById('totalValue');
+
+    // Initialize total value
+    var totalValue = 0;
+
+    // Function to update total value
+    function updateTotalValue() {
+        totalValue = 0;
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                totalValue += parseInt(checkbox.getAttribute('data-valuetwo'));
+            }
+        });
+        totalValuebox.value = totalValue;
+    }
+
+    // Attach event listeners to checkboxes
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            updateTotalValue();
+        });
+    });
+</script>
+
+
 
 </body>
 </html>
