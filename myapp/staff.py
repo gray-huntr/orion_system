@@ -313,7 +313,9 @@ def treat(id):
             return redirect("/doctor")
         elif cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/doctors/treat.html", rows=rows)
+            cursor.execute("select * from tests")
+            tests = cursor.fetchall()
+            return render_template("staff/doctors/treat.html", rows=rows, tests=tests)
 
 @app.route("/treated_patients", methods=["POST",'GET'])
 def treated_patients():
@@ -408,7 +410,7 @@ def cashier():
 
             cursor.execute("insert into billing(patientId, appointmentid, test_cost, total) VALUES (%s,%s,%s,%s)",
                            (patient_id, appointment_id, test_cost, total))
-            cursor.execute("update treatment set cashier_id = %s where treatmentid = %s", (session['staffId'], treatment_id))
+            cursor.execute("update treatment set cashier_id = %s, discharge_date = curdate()  where treatmentid = %s", (session['staffId'], treatment_id))
             conn.commit()
             flash("Patient has been billed successfully", "info")
             return redirect("/cashier")
