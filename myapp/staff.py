@@ -414,7 +414,9 @@ def cashier():
             return redirect("/cashier")
 
     else:
-        return render_template("staff/cashier/cashier.html")
+        cursor.execute("select * from tests")
+        tests = cursor.fetchall()
+        return render_template("staff/cashier/cashier.html", tests=tests)
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():

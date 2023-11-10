@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 </head>
 <body>
+{%include 'msg.html'%}
 <section class="row">
     <div class="col-md-3 signup-form text-left">
         <form action="/cashier" method="post">
@@ -19,7 +20,7 @@
             <button class="cta-btn">SEARCH</button>
         </form>
     </div>
-    <div class="signup-form col-md-6">
+    <div class="signup-form col-md-6 text-left">
         {%for row in rows%}
         <form action="/cashier" method="post">
             <div class="row">
@@ -35,15 +36,15 @@
             <div class="row">
                 <div class="col">
                     <label>Tests done</label>
-                    <textarea name="" cols="30" rows="10" class="rounded">{{row [0]}}</textarea>
+                    <textarea name="" cols="30" rows="10" class="rounded form-control"  readonly>{{row [0]}}</textarea>
                 </div>
                 <div class="col">
                     <label>Billing</label>
-                    <textarea name="test_cost" id="selectedValues" cols="30" rows="10" class="rounded"></textarea>
+                    <textarea name="test_cost" id="selectedValues" cols="30" rows="10" class="rounded form-control" readonly></textarea>
                 </div>
                 <div class="col">
                     <label>Total</label>
-                    <input type="number" class="form-control" value="" id="totalValue" name="total">
+                    <input type="number" class="form-control" value="" id="totalValue" name="total" readonly>
                 </div>
             </div>
             <input type="hidden" value="{{row [4]}}" name="appointment_id">
@@ -57,7 +58,7 @@
     <div class="col-md-3">
         <label>Select the tests done below to charge them</label><br>
         {%for row in tests%}
-        <input type="checkbox" class="myCheckbox" value="{{row [1]}}= KSH: {{row [2]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
+        <input type="checkbox" class="myCheckbox" value="{{row [1]}} = KSH: {{row [2]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
         {%endfor%}
     </div>
 </section>
