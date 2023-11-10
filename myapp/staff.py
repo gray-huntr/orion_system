@@ -32,7 +32,7 @@ def staff_login():
                     elif category == "Receptionist":
                         return redirect("/reception")
                     elif category == "Cashier":
-                        return render_template("staff/cashier/cashier.html")
+                        return redirect("/cashier")
                     elif category == "Pharmacist":
                         return redirect("/pharmacist")
                     else:
@@ -375,9 +375,30 @@ def pharmacist():
 
 
 #Routes for cashier
-@app.route("/cashier")
+@app.route("/cashier", methods=['POST','GET'])
 def cashier():
-    return render_template("staff/cashier/cashier.html")
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        action = request.form['action']
+        if action == 'search':
+            search_term = request.form['search_term']
+            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, treatment.prescription"
+                           " from treatment "
+                           "inner join patients on treatment.patientId = patients.patientId "
+                           "where patients.patientId = %s or patients.fullname like %s ",
+                           ( search_term, '%' + search_term + '%'))
+            if cursor.rowcount > 0:
+                rows = cursor.fetchall()
+                return render_template("staff/cashier/cashier.html", rows=rows)
+            elif cursor.rowcount == 0:
+                flash("There is no record with the given search term", "info")
+                return redirect("/cashier")
+    else:
+        return render_template("staff/cashier/cashier.html")
 # Route for the staff logout page
 @app.route("/logout_staff")
 def logout_staff():
