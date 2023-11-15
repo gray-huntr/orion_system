@@ -93,3 +93,16 @@ def client_management():
         else:
             rows = cursor.fetchall()
             return render_template("admin/client_management.html", rows=rows)
+
+@app.route("/appointment_management")
+def appointment_management():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+                   "appointments.status, patients.fullname from appointments inner join patients on "
+                   "appointments.patientId = patients.patientId")
+    rows = cursor.fetchall()
+    return render_template("admin/appointment_management.html", rows=rows)
