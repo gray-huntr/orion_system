@@ -8,10 +8,10 @@
 </head>
 <body>
 {%include 'admin/admin_nav.html'%}
-<h3>Billing records</h3>
+<h3 class="container">Billing records</h3>
 {%include 'msg.html'%}
 <section>
-    <div>
+    <div class="container">
         <table class="table">
             <tr>
                 <th>Billing ID</th>
@@ -27,8 +27,8 @@
                 <td>{{row [0]}}</td>
                 <td>{{row [1]}}</td>
                 <td>{{row [2]}}</td>
-                <td>{{row [3]}}</td>
-                <td>{{row [4]}}</td>
+                <td><textarea name="" cols="15" rows="4" class="form-control" readonly>{{row [3]}}</textarea></td>
+                <td>KSH: {{row [4]}}</td>
                 <td>{{row [5]}}</td>
                 <td>{{row [6]}}</td>
             </tr>
