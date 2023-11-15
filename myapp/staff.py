@@ -408,8 +408,8 @@ def cashier():
             test_cost = request.form['test_cost']
             total = request.form['total']
 
-            cursor.execute("insert into billing(patientId, appointmentid, test_cost, total) VALUES (%s,%s,%s,%s)",
-                           (patient_id, appointment_id, test_cost, total))
+            cursor.execute("insert into billing(patientId, appointmentid, test_cost, total, cashier_id) VALUES (%s,%s,%s,%s,%s)",
+                           (patient_id, appointment_id, test_cost, total, session['staffId']))
             cursor.execute("update treatment set cashier_id = %s, discharge_date = curdate()  where treatmentid = %s", (session['staffId'], treatment_id))
             conn.commit()
             flash("Patient has been billed successfully", "info")
