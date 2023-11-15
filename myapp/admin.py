@@ -118,4 +118,4 @@ def treatment_records():
                    "treatment.diagnosis, treatment.prescription, treatment.test_done, staff.fullname from treatment inner "
                    "join patients on treatment.patientId = patients.patientId inner join staff on staff.staffId = treatment.doctorid")
     rows = cursor.fetchall()
-    return render_template("admin/treatment_records.html")
+    return render_template("admin/treatment_records.html", rows=rows)
