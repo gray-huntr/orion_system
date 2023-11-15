@@ -129,7 +129,7 @@ def billing():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     cursor.execute("select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
-                   "staff.staffId from billing inner join patients on billing.patientId = patients.patientId inner join staff "
+                   "staff.staffId, billing.date from billing inner join patients on billing.patientId = patients.patientId inner join staff "
                    "on billing.cashier_id = staff.staffId")
     rows = cursor.fetchall()
     return render_template("admin/billings.html", rows=rows)
