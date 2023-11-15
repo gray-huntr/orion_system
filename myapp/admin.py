@@ -119,3 +119,17 @@ def treatment_records():
                    "join patients on treatment.patientId = patients.patientId inner join staff on staff.staffId = treatment.doctorid")
     rows = cursor.fetchall()
     return render_template("admin/treatment_records.html", rows=rows)
+
+
+@app.route("/billing")
+def billing():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
+                   "staff.staffId from billing inner join patients on billing.patientId = patients.patientId inner join staff "
+                   "on billing.cashier_id = staff.staffId")
+    rows = cursor.fetchall()
+    return render_template("admin/billings.html", rows=rows)
