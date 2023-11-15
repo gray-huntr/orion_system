@@ -1,10 +1,7 @@
 from myapp import myapp as app
 from flask import render_template, request, flash, redirect, render_template
 import pymysql
-# connect to database
-conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                       password=app.config["DB_PASSWORD"],
-                       database=app.config["DB_NAME"])
+
 
 
 # Route for the admin page
@@ -15,6 +12,10 @@ def admin():
 
 @app.route("/staff_management/<action>", methods=['POST','GET'])
 def staff_management(action):
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
     if action == 'add':
         if request.method == 'POST':
             with open("myapp/db_ids/staff_id", "r") as file:
@@ -67,3 +68,19 @@ def staff_management(action):
         conn.commit()
         flash("Record updated successfully", "success")
         return redirect("/staff_management/add")
+
+
+@app.route("/client_management")
+def client_management():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from patients")
+    if cursor.rowcount == 0:
+        flash("There are no patients in the database", "info")
+        return render_template("admin/client_management.html")
+    else:
+        rows = cursor.fetchall()
+        return render_template("admin/client_management.html", rows=rows)
