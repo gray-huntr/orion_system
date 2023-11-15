@@ -106,3 +106,16 @@ def appointment_management():
                    "appointments.patientId = patients.patientId")
     rows = cursor.fetchall()
     return render_template("admin/appointment_management.html", rows=rows)
+
+@app.route("/treatment_records")
+def treatment_records():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select treatment.treatmentid, patients.fullname, treatment.appointmentid, treatment.symptoms, "
+                   "treatment.diagnosis, treatment.prescription, treatment.test_done, staff.fullname from treatment inner "
+                   "join patients on treatment.patientId = patients.patientId inner join staff on staff.staffId = treatment.doctorid")
+    rows = cursor.fetchall()
+    return render_template("admin/treatment_records.html")
