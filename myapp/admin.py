@@ -70,17 +70,26 @@ def staff_management(action):
         return redirect("/staff_management/add")
 
 
-@app.route("/client_management")
+@app.route("/client_management", methods=['POST','GET'])
 def client_management():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from patients")
-    if cursor.rowcount == 0:
-        flash("There are no patients in the database", "info")
-        return render_template("admin/client_management.html")
+    if request.method == 'POST':
+        id = request.form['id']
+        status = request.form['status']
+
+        cursor.execute("update patients set status = %s where patientId = %s", (status, id))
+        conn.commit()
+        flash("Patient status updated successfully", "info")
+        return redirect("/client_management")
     else:
-        rows = cursor.fetchall()
-        return render_template("admin/client_management.html", rows=rows)
+        cursor.execute("select * from patients")
+        if cursor.rowcount == 0:
+            flash("There are no patients in the database", "info")
+            return render_template("admin/client_management.html")
+        else:
+            rows = cursor.fetchall()
+            return render_template("admin/client_management.html", rows=rows)
