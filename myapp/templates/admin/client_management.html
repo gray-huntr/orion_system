@@ -9,10 +9,15 @@
 </head>
 <body>
 {%include 'admin/admin_nav.html'%}
-<h1>Client management</h1>
+<h1 class="container">Client management</h1>
 {%include 'msg.html'%}
 <section class="container">
     <div>
+        <form action="/search/client" method="post" class="col-md-4">
+            <input type="text" name="search_term" required class="form-control" placeholder="Input Patient ID or name">
+            <button class="btn btn-dark">Search</button>
+            <a href="/client_management" class="btn btn-dark">Display all</a>
+        </form>
         <table class="table">
             <tr>
                 <th>Patient ID</th>

@@ -143,7 +143,7 @@ def search(category):
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     search_term = request.form['search_term']
-    if category == 'clients':
+    if category == 'client':
         cursor.execute("select * from patients where patientId = %s or fullname like %s",
                        (search_term, '%' + search_term + '%'))
         if cursor.rowcount > 0:
