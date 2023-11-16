@@ -12,6 +12,11 @@
 {%include 'msg.html'%}
 <section>
     <div class="container">
+        <form action="/search/billing" method="post" class="col-md-4">
+            <input type="text" name="search_term" required class="form-control" placeholder="Input Billing ID, patient name or cashier name">
+            <button class="btn btn-dark">Search</button>
+            <a href="/billing" class="btn btn-dark">Display all</a>
+        </form>
         <table class="table">
             <tr>
                 <th>Billing ID</th>
