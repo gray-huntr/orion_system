@@ -1,6 +1,7 @@
 from myapp import myapp as app
-from flask import render_template, request, flash, redirect, render_template
+from flask import render_template, request, flash, redirect, render_template, make_response
 import pymysql
+from fpdf import FPDF
 
 
 
@@ -197,6 +198,118 @@ def search(category):
         elif cursor.rowcount == 0:
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/billing")
+
+@app.route("/report/<category>")
+def report(category):
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+
+    if category == 'clients':
+        cursor.execute("select * from patients")
+        rows = cursor.fetchall()
+
+        pdf = FPDF(orientation='L')
+        pdf.add_page()
+        pdf.set_font("Times", size=12)
+
+        # Table headers
+        headers = ["Patient ID", "Patient name", "Email", "Number", "Gender", "DOB", "Blood group"]
+        pdf.set_fill_color(200, 220, 255)
+        # Set the column widths
+        col_widths = [40, 40, 60, 40, 30, 30, 30]
+
+        for header, width in zip(headers, col_widths):
+            pdf.cell(width, 10, header, 1)
+        pdf.ln()
+
+        # Table data
+        for row in rows:
+            data_row = [row[0], row[1], row[2], row[3], row[6], str(row[7]), row[8]]
+
+            # Convert None values to empty strings
+            data_row = ["" if val is None else val for val in data_row]
+
+            # Add data to the table
+            for datum, width in zip(data_row, col_widths):
+                pdf.cell(width, 10, datum, 1)
+            pdf.ln()
+
+        # Save the PDF
+        pdf.output(f"{category}.pdf")
+        # output = bytes(pdf.output(dest='S'))
+        # response = make_response(output)
+        # response.headers['Content-Type'] = 'application/pdf'
+        # response.headers['Content-Disposition'] = f'attachment; filename={category}.pdf'
+        # return response
+    elif category == 'staff':
+        cursor.execute("select * from staff")
+        rows = cursor.fetchall()
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Times", size=12)
+        # Table headers
+        headers = ["Staff ID", "name", "Email", "Number"]
+        pdf.set_fill_color(200, 220, 255)
+
+        # Set the column widths
+        col_widths = [40, 40, 60, 40]
+
+        for header, width in zip(headers, col_widths):
+            pdf.cell(width, 10, header, 1)
+        pdf.ln()
+
+        # Table data
+        for row in rows:
+            data_row = [row[0], row[1], row[2], row[3]]
+
+            # Convert None values to empty strings
+            data_row = ["" if val is None else val for val in data_row]
+
+            # Add data to the table
+            for datum, width in zip(data_row, col_widths):
+                pdf.cell(width, 10, datum, 1)
+            pdf.ln()
+
+        # Save the PDF
+        pdf.output(f"{category}.pdf")
+    elif category == 'appointments':
+        cursor.execute(
+            "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+            "appointments.status, patients.fullname from appointments inner join patients on "
+            "appointments.patientId = patients.patientId")
+        rows = cursor.fetchall()
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Times", size=12)
+        # Table headers
+        headers = ["Appointment ID", "Patient ID", "Patient Name", "Room number", "Date/time", "status"]
+        pdf.set_fill_color(200, 220, 255)
+
+        # Set the column widths
+        col_widths = [30, 30, 30, 30, 40, 30]
+
+        for header, width in zip(headers, col_widths):
+            pdf.cell(width, 10, header, 1)
+        pdf.ln()
+
+        # Table data
+        for row in rows:
+            data_row = [row[0], row[1], row[5], row[2], str(row[3]), row[4]]
+
+            # Convert None values to empty strings
+            data_row = ["" if val is None else val for val in data_row]
+
+            # Add data to the table
+            for datum, width in zip(data_row, col_widths):
+                pdf.cell(width, 10, datum, 1)
+            pdf.ln()
+
+        # Save the PDF
+        pdf.output(f"{category}.pdf")
+
 
 # Custom error handler for 404 Not Found
 @app.errorhandler(404)
