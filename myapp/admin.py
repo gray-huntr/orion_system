@@ -133,3 +133,22 @@ def billing():
                    "on billing.cashier_id = staff.staffId")
     rows = cursor.fetchall()
     return render_template("admin/billings.html", rows=rows)
+
+
+@app.route("/search/<category>", methods=['POST','GET'])
+def search(category):
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    search_term = request.form['search_term']
+    if category == 'clients':
+        cursor.execute("select * from patients where patientId = %s or fullname like %s",
+                       (search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/client_management.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/client_management")
