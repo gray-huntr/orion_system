@@ -160,7 +160,9 @@ def appointment_search():
                        (id, '%' + id + '%', id))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/reception/appointments.html", rows=rows)
+            cursor.execute("select * from rooms where category = 'online'")
+            rooms = cursor.fetchall()
+            return render_template("staff/reception/appointments.html", rows=rows, rooms=rooms)
         elif cursor.rowcount == 0:
             flash(f"There is no appointment with the search term: {id}", "info")
             return redirect("/appointment_search")

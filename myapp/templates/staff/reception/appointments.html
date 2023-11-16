@@ -86,11 +86,10 @@
                 <label>Assign Room</label>
                 <form action="/assign_room/online/{{row [0]}}", method="post">
                     <select name="room" id="" class="form-control">
-                        <option value="">{{row [2]}}</option>
-                        <option value="1">Room 1</option>
-                        <option value="2">Room 2</option>
-                        <option value="3">Room 3</option>
-                        <option value="4">Room 4</option>
+                        <option value="">Room {{row [2]}}</option>
+                        {%for row in rooms%}
+                        <option value="{{row [0]}}">Room {{row [0]}}</option>
+                        {%endfor%}
                     </select><br>
 
                     <button>Assign</button>
