@@ -152,3 +152,12 @@ def search(category):
         elif cursor.rowcount == 0:
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/client_management")
+    elif category == 'staff':
+        cursor.execute("select * from staff where staffId = %s or fullname like %s",
+                       (search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/staff_management.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/staff_management/add")
