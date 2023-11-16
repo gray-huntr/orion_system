@@ -161,3 +161,16 @@ def search(category):
         elif cursor.rowcount == 0:
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/staff_management/add")
+    elif category == 'appointment':
+        cursor.execute(
+            "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+            "appointments.status, patients.fullname from appointments inner join patients on "
+            "appointments.patientId = patients.patientId where appointments.appointmentId = %s or patients.patientId"
+            " = %s or patients.fullname like %s", (search_term, search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/appointment_management.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/appointment_management")
+
