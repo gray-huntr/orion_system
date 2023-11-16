@@ -185,6 +185,18 @@ def search(category):
         elif cursor.rowcount == 0:
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/treatment_records")
+    elif category == 'billing':
+        cursor.execute(
+            "select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
+            "staff.fullname, billing.date from billing inner join patients on billing.patientId = patients.patientId inner join staff "
+            "on billing.cashier_id = staff.staffId where billing.billingid = %s or patients.fullname like %s or staff.fullname like %s",
+            (search_term, '%' + search_term + '%','%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/billings.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/billing")
 
 
 
