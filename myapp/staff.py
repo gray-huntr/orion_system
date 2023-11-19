@@ -35,6 +35,8 @@ def staff_login():
                         return redirect("/cashier")
                     elif category == "Pharmacist":
                         return redirect("/pharmacist")
+                    elif category == "Admin":
+                        return redirect("/admin")
                     else:
                         flash("Error occurred", "warning")
                         return redirect("/staff_login")
