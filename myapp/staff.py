@@ -181,7 +181,8 @@ def assign_room(category, id):
         if request.method == 'POST':
             room = request.form['room']
 
-            cursor.execute("update appointments set roomNo = %s where appointmentId = %s", (room, id))
+            cursor.execute("update appointments set roomNo = %s, status = %s where appointmentId = %s",
+                           (room, "Examination room", id))
             conn.commit()
             flash("Room assigned successfully", "success")
             return redirect("/appointment_search")
@@ -196,7 +197,7 @@ def assign_room(category, id):
                 appointment_id = "A" + str(old_id)
             room = request.form['room']
             patient_id = id
-            status = "attending"
+            status = "Examination room"
             category = "walk-in"
 
             cursor.execute("insert into appointments(appointmentId, patientId, roomNo, status, category) "
@@ -326,6 +327,8 @@ def treat(id):
                        "diagnosis, Prescription, test_done, doctorid) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                        (treatment_id, patient_id, appointment_id, symptoms, session['roomid'], diagnosis, prescription,
                         tests, session['staffId']))
+        cursor.execute("update appointments set status = %s where appointmentId = %s",
+                       ("Pharmacist", appointment_id))
         conn.commit()
         old_id += 1
         # Save the new treatment id to file
@@ -440,7 +443,9 @@ def cashier():
 
             cursor.execute("insert into billing(patientId, appointmentid, test_cost, total, cashier_id) VALUES (%s,%s,%s,%s,%s)",
                            (patient_id, appointment_id, test_cost, total, session['staffId']))
-            cursor.execute("update treatment set cashier_id = %s, discharge_date = curdate()  where treatmentid = %s", (session['staffId'], treatment_id))
+            cursor.execute("update treatment set discharge_date = curdate()  where treatmentid = %s",  treatment_id)
+            cursor.execute("update appointments set status = %s where appointmentId = %s",
+                           ( "Discharged", appointment_id))
             conn.commit()
             flash("Patient has been billed successfully", "info")
             return redirect("/cashier")
