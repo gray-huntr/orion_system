@@ -92,7 +92,7 @@ def password_change():
                     flash("New passwords do not match", "danger")
                     return redirect("/password_change")
     else:
-        return render_template("password_change.html ")
+        return render_template("password_change.html")
 
 
 #     Routes for receptionists
