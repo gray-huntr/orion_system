@@ -44,11 +44,7 @@ def staff_login():
             flash("Error occurred", "danger")
             return redirect("/staff_login")
     else:
-        if 'patientId' in session:
-            session.pop('patientId', None)
-            return redirect("/staff_login")
-        else:
-            return render_template("staff/staff_login.html")
+        return render_template("staff/staff_login.html")
 
 
 @app.route("/password_change", methods=['POST', 'GET'])

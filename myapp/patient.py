@@ -48,11 +48,7 @@ def login():
             flash("Error occurred", "danger")
             return redirect("/login")
     else:
-        if 'staffId' in session:
-            session.pop('staffId', None)
-            return redirect('/login')
-        else:
-            return render_template("patients/login.html")
+        return render_template("patients/login.html")
 
 # Route for the signup page
 @app.route("/signup", methods=['POST', 'GET'])
