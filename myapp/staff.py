@@ -271,7 +271,7 @@ def doctor():
     if 'roomid' in session:
         cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
                        "from appointments inner join patients on appointments.patientId = patients.patientId "
-                       "where appointments.roomNo = %s and appointments.time >= current_date", session['roomid'])
+                       "where appointments.roomNo = %s and appointments.status = 'Examination room'", session['roomid'])
         if cursor.rowcount == 0:
             flash("There are no appointments assigned to this room", "info")
             return render_template("staff/doctors/doctorsportal.html")
@@ -388,10 +388,9 @@ def pharmacist():
         action = request.form['action']
         if action == 'search':
             search_term = request.form['search_term']
-            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription"
-                           " from treatment "
-                           "inner join patients on treatment.patientId = patients.patientId "
-                           "where treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s ",
+            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription, treatment.appointmentid"
+                           " from treatment inner join patients on treatment.patientId = patients.patientId inner join appointments on treatment.appointmentid = appointments.appointmentId "
+                           "where (treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Pharmacist' ",
                            (search_term, search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
@@ -401,7 +400,10 @@ def pharmacist():
                 return redirect("/pharmacist")
         elif action == 'update':
             id = request.form['id']
+            app_id = request.form['app_id']
             cursor.execute("update treatment set pharmacist_id = %s where treatmentid = %s", (session['staffId'], id))
+            cursor.execute("update appointments set status = %s where appointmentId = %s",
+                           ("Cashier", app_id))
             conn.commit()
             flash("Direct patient to cashier", "info")
             return redirect("/pharmacist")
@@ -424,7 +426,8 @@ def cashier():
             cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, "
                            "treatment.prescription, treatment.appointmentid, treatment.treatmentid from treatment "
                            "inner join patients on treatment.patientId = patients.patientId "
-                           "where patients.patientId = %s or patients.fullname like %s ",
+                           "inner join appointments on appointments.appointmentId = treatment.appointmentid "
+                           "where (patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Cashier'",
                            ( search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
@@ -468,8 +471,9 @@ def cleared():
         cursor.execute(
             "select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
             "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
-            "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s "
-            "and (billing.patientId = %s or patients.fullname like %s)",(session['staffId'], search_term, '%' + search_term + '%'))
+            " where billing.cashier_id = %s "
+            "and (billing.patientId = %s or patients.fullname like %s)",
+            (session['staffId'], search_term, '%' + search_term + '%'))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/cashier/cleared.html", rows=rows)
@@ -479,7 +483,7 @@ def cleared():
     else:
         cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
                        "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
-                       "inner join treatment on billing.patientId = treatment.patientId where treatment.cashier_id = %s", session['staffId'])
+                       "inner join treatment on billing.patientId = treatment.patientId where billing.cashier_id = %s", session['staffId'])
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/cashier/cleared.html", rows=rows)

@@ -48,6 +48,7 @@
         <br>
         <form action="/pharmacist", method="post">
             <input type="hidden" value="{{row [0]}}" name="id">
+            <input type="hidden" value="{{row [5]}}" name="app_id">
             <input type="hidden" name="action" value="update">
             <button class="btn btn-dark">Done prescribing</button>
         </form>
