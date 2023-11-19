@@ -48,42 +48,8 @@ def login():
             flash("Error occurred", "danger")
             return redirect("/login")
     else:
-        return render_template("patients/login.html")
+        return render_template("patients/index.html")
 
-# Route for the signup page
-@app.route("/signup", methods=['POST', 'GET'])
-def signup():
-    # connect to database
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    if request.method == 'POST':
-        fullname = request.form['fullname']
-        email = request.form['email']
-        number = request.form['number']
-        password = request.form['password']
-        repeat_pass = request.form['repeatPass']
-
-        cursor.execute("select * from patients where email = %s", email)
-        if cursor.rowcount > 0:
-            flash("Email already exists, try another one", "info")
-            return redirect("/signup")
-        elif cursor.rowcount == 0:
-            if password == repeat_pass:
-                cursor.execute("insert into patients(fullname, email, number, password) values (%s,%s,%s,%s)",
-                               (fullname, email, number, password))
-                conn.commit()
-                flash("Sign up successfull", "success")
-                return redirect("/signup")
-            elif password != repeat_pass:
-                flash("Passwords do not match", "danger")
-                return redirect("/signup")
-        else:
-            flash("Error occured", "danger")
-            return redirect("/signup")
-    else:
-        return render_template("patients/signup.html")
 
 # Route for the patient page
 @app.route("/patient")
