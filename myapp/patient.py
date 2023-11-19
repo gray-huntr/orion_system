@@ -133,6 +133,22 @@ def appointments(action):
         conn.commit()
         return redirect("/appointments/view")
 
+@app.route("/my_billings")
+def my_billings():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from billing where patientId = %s", session['patientId'])
+    if cursor.rowcount == 0:
+        flash("There are no billing records for you", "info")
+        return render_template("patients/billing.html")
+    elif cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("patients/billing.html", rows=rows)
+
+
 @app.route("/logout_patient")
 def logout_patient():
     session.pop('patientId', None)

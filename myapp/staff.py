@@ -224,7 +224,9 @@ def walkins():
                        (id, '%' + id + '%'))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/reception/walk-ins.html", rows=rows)
+            cursor.execute("select * from rooms where category = 'walk-in'")
+            rooms = cursor.fetchall()
+            return render_template("staff/reception/walk-ins.html", rows=rows, rooms=rooms)
         elif cursor.rowcount == 0:
             flash("Their id no patient with the given id or name, try again", "warning")
             return redirect("/walkins")
