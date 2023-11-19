@@ -10,6 +10,10 @@ from fpdf import FPDF
 def admin():
     return render_template("admin/admin.html")
 
+@app.route("/reports")
+def reports():
+    return render_template("admin/reports.html")
+
 @app.route("/staff_management/<action>", methods=['POST','GET'])
 def staff_management(action):
     # connect to database
