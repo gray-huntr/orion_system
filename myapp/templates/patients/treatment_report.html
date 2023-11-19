@@ -8,30 +8,31 @@
 </head>
 <body>
 {%include 'patients/patient_nav.html'%}
-<h3 class="container">Billing records</h3>
+<h3 class="container">Treatment records</h3>
 {%include 'msg.html'%}
 <section>
     <div class="container">
         <table class="table">
             <tr>
-                <th>Billing ID</th>
+                <th>Treatment ID</th>
                 <th>Appointment ID</th>
-                <th>Test & Cost</th>
-                <th>Total</th>
-                <th>Date</th>
+                <th>Symptoms</th>
+                <th>Diagnosis</th>
+                <th>Prescription</th>
+                <th>Test done</th>
             </tr>
             {%for row in rows%}
             <tr>
                 <td>{{row [0]}}</td>
                 <td>{{row [2]}}</td>
-                <td><textarea name="" cols="15" rows="4" class="form-control" readonly>{{row [3]}}</textarea></td>
-                <td>KSH: {{row [4]}}</td>
-                <td>{{row [6]}}</td>
+                <td><textarea name=""  cols="10" rows="4" class="form-control" readonly>{{row [3]}}</textarea></td>
+                <td><textarea name=""  cols="7" rows="2" class="form-control" readonly>{{row [4]}}</textarea></td>
+                <td><textarea name=""  cols="7" rows="2" class="form-control" readonly>{{row [5]}}</textarea></td>
+                <td><textarea name=""  cols="10" rows="4" class="form-control" readonly>{{row [6]}}</textarea></td>
             </tr>
             {%endfor%}
         </table>
     </div>
 </section>
-
 </body>
 </html>
