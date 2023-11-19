@@ -39,7 +39,7 @@ def login():
             rows = cursor.fetchall()
             for row in rows:
                 session['patientId'] = row[0]
-                if row[9] == 1:
+                if row[10] == 1:
                     flash("Please set a new password before continuing", "info")
                     return redirect("/password_change")
                 else:
@@ -116,7 +116,7 @@ def appointments(action):
             # Save the new appointment id to file
             with open("myapp/db_ids/appointment_id", "w") as file:
                 file.write(str(old_id))
-            flash("Appointment booked successfully", "success")
+            flash("Appointment booked successfully,", "success")
             return redirect("/appointments/view")
         else:
             cursor.execute("select * from appointments where patientId = %s", session['patientId'])
@@ -157,7 +157,7 @@ def treatment_report():
     cursor = conn.cursor()
     cursor.execute("select * from treatment where patientId = %s", session['patientId'])
     if cursor.rowcount == 0:
-        flash("There are no billing records for you", "info")
+        flash("You dont have any treatment records", "info")
         return render_template("patients/treatment_report.html")
     elif cursor.rowcount > 0:
         rows = cursor.fetchall()
