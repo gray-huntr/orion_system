@@ -233,18 +233,32 @@ def walkins():
     else:
         return render_template("staff/reception/walk-ins.html")
 
-@app.route("appointment_information")
+@app.route("/appointment_information", methods=['POST','GET'])
 def appointment_information():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
-                   "appointments.status, patients.fullname from appointments inner join patients on "
-                   "appointments.patientId = patients.patientId")
-    rows = cursor.fetchall()
-    return render_template("staff/reception/appointment_information.html", rows=rows)
+    if request.method == 'POST':
+        search_term = request.form['search_term']
+        cursor.execute(
+            "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+            "appointments.status, patients.fullname from appointments inner join patients on "
+            "appointments.patientId = patients.patientId where appointments.appointmentId = %s or patients.patientId"
+            " = %s or patients.fullname like %s", (search_term, search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/reception/appointment_information.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/appointment_information")
+    else:
+        cursor.execute("select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+                       "appointments.status, patients.fullname from appointments inner join patients on "
+                       "appointments.patientId = patients.patientId")
+        rows = cursor.fetchall()
+        return render_template("staff/reception/appointment_information.html", rows=rows)
 #Routes for doctors
 @app.route("/doctor")
 def doctor():
