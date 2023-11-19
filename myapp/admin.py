@@ -205,6 +205,7 @@ def search(category):
 @app.route("/report/<category>")
 def report(category):
     # connect to database
+    global output
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
@@ -241,12 +242,8 @@ def report(category):
             pdf.ln()
 
         # Save the PDF
-        pdf.output(f"{category}.pdf")
-        # output = bytes(pdf.output(dest='S'))
-        # response = make_response(output)
-        # response.headers['Content-Type'] = 'application/pdf'
-        # response.headers['Content-Disposition'] = f'attachment; filename={category}.pdf'
-        # return response
+        # pdf.output(f"{category}.pdf")
+        output = bytes(pdf.output(dest='S'))
     elif category == 'staff':
         cursor.execute("select * from staff")
         rows = cursor.fetchall()
@@ -277,7 +274,8 @@ def report(category):
             pdf.ln()
 
         # Save the PDF
-        pdf.output(f"{category}.pdf")
+        # pdf.output(f"{category}.pdf")
+        output = bytes(pdf.output(dest='S'))
     elif category == 'appointments':
         cursor.execute(
             "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
@@ -311,7 +309,12 @@ def report(category):
             pdf.ln()
 
         # Save the PDF
-        pdf.output(f"{category}.pdf")
+        # pdf.output(f"{category}.pdf")
+        output = bytes(pdf.output(dest='S'))
+    response = make_response(output)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={category}.pdf'
+    return response
 
 
 # Custom error handler for 404 Not Found
