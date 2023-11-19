@@ -156,7 +156,7 @@ def appointment_search():
         cursor.execute("select appointments.*, patients.* from appointments "
                        "inner join patients on appointments.patientId = patients.patientId "
                        "where appointments.category = 'online' and (patients.patientId = %s or patients.fullname like %s "
-                       "or appointments.appointmentId = %s) ",
+                       "or appointments.appointmentId = %s) and  appointments.time >= current_date",
                        (id, '%' + id + '%', id))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
@@ -271,7 +271,7 @@ def doctor():
     if 'roomid' in session:
         cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
                        "from appointments inner join patients on appointments.patientId = patients.patientId "
-                       "where appointments.roomNo = %s", session['roomid'])
+                       "where appointments.roomNo = %s and appointments.time >= current_date", session['roomid'])
         if cursor.rowcount == 0:
             flash("There are no appointments assigned to this room", "info")
             return render_template("staff/doctors/doctorsportal.html")
