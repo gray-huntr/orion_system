@@ -25,7 +25,7 @@ def staff_login():
                 session['staffId'] = row[0]
                 if row[6] == 1:
                     flash("Please set a new password before continuing", "info")
-                    return redirect("/password_change")
+                    return redirect("/password_change_staff")
                 else:
                     if category == "Doctor":
                         return redirect("/doctor")
@@ -47,8 +47,8 @@ def staff_login():
         return render_template("staff/staff_login.html")
 
 
-@app.route("/password_change", methods=['POST', 'GET'])
-def password_change():
+@app.route("/password_change_staff", methods=['POST', 'GET'])
+def password_change_staff():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
@@ -59,40 +59,54 @@ def password_change():
         new_password = request.form['new_password']
         repeat_password = request.form['repeat_password']
 
-        if 'staffId' in session:
-            cursor.execute("select * from staff where staffId = %s and password = %s",
-                           (session['staffId'], old_password))
-            if cursor.rowcount == 0:
-                flash("Your old password is incorrect", "danger")
-                return redirect("/password_change")
-            elif cursor.rowcount == 1:
-                if new_password == repeat_password:
-                    cursor.execute("update staff set firstLogin = '0', password = %s where staffId = %s",
-                                   (new_password, session['staffId']))
-                    conn.commit()
-                    flash("Password changed successfully, login to continue", "success")
-                    return redirect("/staff_login")
-                else:
-                    flash("New passwords do not match", "danger")
-                    return redirect("/password_change")
-        if 'patientId' in session:
-            cursor.execute("select * from patients where patientId = %s and password = %s",
-                           (session['patientId'], old_password))
-            if cursor.rowcount == 0:
-                flash("Your old password is incorrect", "danger")
-                return redirect("/password_change")
-            elif cursor.rowcount == 1:
-                if new_password == repeat_password:
-                    cursor.execute("update patients set firstLogin = '0', password = %s where patientId = %s",
-                                   (new_password, session['patientId']))
-                    conn.commit()
-                    flash("Password changed successfully", "success")
-                    return redirect("/patient")
-                else:
-                    flash("New passwords do not match", "danger")
-                    return redirect("/password_change")
+        cursor.execute("select * from staff where staffId = %s and password = %s",
+                       (session['staffId'], old_password))
+        if cursor.rowcount == 0:
+            flash("Your old password is incorrect", "danger")
+            return redirect("/password_change_staff")
+        elif cursor.rowcount == 1:
+            if new_password == repeat_password:
+                cursor.execute("update staff set firstLogin = '0', password = %s where staffId = %s",
+                               (new_password, session['staffId']))
+                conn.commit()
+                flash("Password changed successfully, login to continue", "success")
+                return redirect("/staff_login")
+            else:
+                flash("New passwords do not match", "danger")
+                return redirect("/password_change_staff")
     else:
-        return render_template("password_change.html")
+        return render_template("password_change_staff.html")
+
+
+@app.route("/password_change_patient", methods=['POST', 'GET'])
+def password_change_patient():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        old_password = request.form['old_password']
+        new_password = request.form['new_password']
+        repeat_password = request.form['repeat_password']
+
+        cursor.execute("select * from patients where patientId = %s and password = %s",
+                       (session['patientId'], old_password))
+        if cursor.rowcount == 0:
+            flash("Your old password is incorrect", "danger")
+            return redirect("/password_change_patient")
+        elif cursor.rowcount == 1:
+            if new_password == repeat_password:
+                cursor.execute("update patients set firstLogin = '0', password = %s where patientId = %s",
+                               (new_password, session['patientId']))
+                conn.commit()
+                flash("Password changed successfully", "success")
+                return redirect("/patient")
+            else:
+                flash("New passwords do not match", "danger")
+                return redirect("/password_change_patient")
+    else:
+        return render_template("patients/password_change_patient.html")
 
 
 #     Routes for receptionists

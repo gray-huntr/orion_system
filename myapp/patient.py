@@ -40,7 +40,7 @@ def login():
                 session['patientId'] = row[0]
                 if row[10] == 1:
                     flash("Please set a new password before continuing", "info")
-                    return redirect("/password_change")
+                    return redirect("/password_change_patient")
                 else:
                     return redirect("/patient")
         else:
