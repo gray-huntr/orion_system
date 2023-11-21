@@ -15,6 +15,7 @@ def reports():
     return render_template("admin/reports.html")
 
 
+
 @app.route("/staff_management/<action>", methods=['POST', 'GET'])
 def staff_management(action):
     # connect to database
