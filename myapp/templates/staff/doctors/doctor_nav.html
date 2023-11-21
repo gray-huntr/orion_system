@@ -1,13 +1,23 @@
-<header>
-    <nav>
-        <div class="logo">Orion HMS</div>
-        <ul>
-            <li><a href="/doctor">Appointments</a></li>
-            <li><a href="/treated_patients">Treated patients</a></li>
-            {%if 'roomid' in session%}
-            <li><a href="/change_room">Change room</a></li>
-            {%endif%}
-            <li><a href="/logout_staff">Logout</a></li>
-        </ul>
-    </nav>
-</header>
+<nav class="navbar navbar-expand-md navbar-dark">
+    <div class="container">
+
+        <a class="navbar-brand" href='/'>
+            <i class="fas fa-code"></i>Orion HMS
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/doctor">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="/treated_patients">Treated patients</a></li>
+                {%if 'roomid' in session%}
+                <li class="nav-item"><a class="nav-link" href="/change_room">Change room</a></li>
+                {%endif%}
+                <li class="nav-item"><a class="nav-link" href="/logout_staff">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

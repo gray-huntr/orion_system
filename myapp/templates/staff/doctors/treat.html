@@ -1,72 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Doctors portal</title>
-    <link rel="stylesheet" href="{{url_for('static', filename ='css/style.css')}}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <!-- below is a javascript file,helps in interactivity -->
-	<!-- jQuery and JS bundle w/ Popper.js -  Interactivity-->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    {% include 'head_section.html' %}
 </head>
 <body>
 {%include 'staff/doctors/doctor_nav.html'%}
 <div class="container">{%include 'msg.html'%}</div>
-<section class="row" >
-    <div class="col-md-9 signup-form">
-    {%for row in rows%}
-    <form action="/treat/{{row [0]}}" method="post">
-        <div class="col">
-            <label>Appointment Id</label>
-            <span class="form-control"><input type="hidden" name="appointment_id" value="{{row [0]}}">{{row [0]}}</span>
-        </div>
-        <br>
-        <div class="row">
+<section class="row">
+    <div class="col-md-9 admin-form-special">
+        {%for row in rows%}
+        <form action="/treat/{{row [0]}}" method="post">
             <div class="col">
-                <label>Patient ID</label>
-                <span class="form-control"><input type="hidden" name="patient_id" value="{{row [1]}}">{{row [1]}}</span>
+                <h3>Appointment Id</h3>
+                <span class="form-control"><input type="hidden" name="appointment_id"
+                                                  value="{{row [0]}}">{{row [0]}}</span>
             </div>
-            <div class="col">
-                <label>Patient name</label>
-                <span class="form-control text-nowrap ">{{row [2]}}</span>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <h3>Patient ID</h3>
+                    <span class="form-control"><input type="hidden" name="patient_id"
+                                                      value="{{row [1]}}">{{row [1]}}</span>
+                </div>
+                <div class="col">
+                    <h3>Patient name</h3>
+                    <span class="form-control text-nowrap ">{{row [2]}}</span>
+                </div>
+                <div class="col">
+                    <h3>Patient number</h3>
+                    <span class="form-control ">{{row [3]}}</span>
+                </div>
             </div>
-            <div class="col">
-                <label>Patient number</label>
-                <span class="form-control ">{{row [3]}}</span>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <textarea name="symptoms" class="form-control" cols="25" rows="10"
+                              placeholder="Enter patient's symptoms here"></textarea>
+                </div>
+                <div class="col">
+                    <textarea name="diagnosis" class="form-control" cols="25" rows="10"
+                              placeholder="Enter Diagnosis here"></textarea>
+                </div>
+                <div class="col">
+                    <textarea name="prescription" class="form-control" cols="25" rows="10"
+                              placeholder="Enter prescription here"></textarea>
+                </div>
+                <div class="col">
+                    <textarea name="tests" id="selectedValues" class=" form-control" cols="25" rows="10" readonly
+                              placeholder="Select the tests done from the left panel"></textarea>
+                </div>
             </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col">
-                <textarea name="symptoms" class="form-control" cols="25" rows="10" placeholder="Enter patient's symptoms here"></textarea>
-            </div>
-            <div class="col">
-                <textarea name="diagnosis" class="form-control" cols="25" rows="10" placeholder="Enter Diagnosis here"></textarea>
-            </div>
-            <div class="col">
-                <textarea name="prescription" class="form-control" cols="25" rows="10" placeholder="Enter prescription here"></textarea>
-            </div>
-            <div class="col">
-                <textarea name="tests" id="selectedValues" class=" form-control" cols="25" rows="10" readonly placeholder="Select the tests done from the left panel"></textarea>
-            </div>
-        </div>
-        <button class="cta-btn">Submit</button>
-    </form>
-    {%endfor%}
+            <button class="cta-btn">Submit</button>
+        </form>
+        {%endfor%}
     </div>
 
     <div class="col-md-2">
         <div class="">
-            <label>Select the tests done below</label><br>
+            <h3>Select the tests done below</h3><br>
             {%for row in tests%}
-            <input type="checkbox" class="myCheckbox" value="{{row [1]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
+            <input type="checkbox" class="myCheckbox" value="{{row [1]}}" data-valuetwo="{{row [2]}}">
+            <h3>{{row
+                [1]}}</h3><br>
             {%endfor%}
         </div>
     </div>
 </section>
 <script>
-// Get all checkboxes by class
+    // Get all checkboxes by class
     var checkboxes = document.querySelectorAll('.myCheckbox');
 
     // Get the textarea to display selected values
