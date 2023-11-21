@@ -4,6 +4,9 @@
         <ul>
             <li><a href="/doctor">Appointments</a></li>
             <li><a href="/treated_patients">Treated patients</a></li>
+            {%if 'roomid' in session%}
+            <li><a href="/change_room">Change room</a></li>
+            {%endif%}
             <li><a href="/logout_staff">Logout</a></li>
         </ul>
     </nav>
