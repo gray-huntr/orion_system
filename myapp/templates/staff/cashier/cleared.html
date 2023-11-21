@@ -1,45 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Patients cleared</title>
-    <link rel="stylesheet" href="{{url_for('static', filename ='css/style.css')}}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <!-- below is a javascript file,helps in interactivity -->
-	<!-- jQuery and JS bundle w/ Popper.js -  Interactivity-->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    {% include 'head_section.html' %}
 </head>
 <body>
 {%include 'staff/cashier/cashier_nav.html'%}
-<section class="container">
+<section>
     {%include 'msg.html'%}
-    <form action="/cleared" method="post">
-        <label>Input patient ID or name</label>
-        <input type="text" class="form-control col-md-3"  name="search_term" required><br>
-        <button class="btn btn-dark">Search</button>
-        <a href="/cleared" class="btn btn-primary"> Reset</a>
-    </form>
-    <table class="table container">
-        <tr>
-            <th>Patient ID</th>
-            <th>Patient name</th>
-            <th>Appointment ID</th>
-            <th>Test(s) cost</th>
-            <th>Total</th>
-            <th>Discharge date</th>
-        </tr>
-        {%for row in rows%}
-        <tr>
-            <td>{{row [0]}}</td>
-            <td>{{row [5]}}</td>
-            <td>{{row [1]}}</td>
-            <td><textarea readonly class="rounded" cols="17" rows="3">{{row [2]}}</textarea></td>
-            <td>{{row [3]}}</td>
-            <td>{{row [4]}}</td>
-        </tr>
-        {%endfor%}
-    </table>
+    <div class="center-display">
+        <div class="admin-form">
+            <form action="/cleared" method="post">
+                <h3>Input patient ID or name</h3>
+                <input type="text" name=" search_term" required>
+                <div class="button-container">
+                    <button class="btn-success">Search</button>
+                    <a href="/cleared" class="btn btn-primary"> Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="center-display">
+        <br>
+    </div>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Patient ID</th>
+                <th>Patient name</th>
+                <th>Appointment ID</th>
+                <th>Test(s) cost</th>
+                <th>Total</th>
+                <th>Discharge date</th>
+            </tr>
+            {%for row in rows%}
+            <tr class="text-white">
+                <td>{{row [0]}}</td>
+                <td>{{row [5]}}</td>
+                <td>{{row [1]}}</td>
+                <td><textarea readonly class="rounded" cols="17" rows="3">{{row [2]}}</textarea></td>
+                <td>{{row [3]}}</td>
+                <td>{{row [4]}}</td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
 </section>
 </body>
 </html>
