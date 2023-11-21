@@ -259,6 +259,11 @@ def appointment_information():
         rows = cursor.fetchall()
         return render_template("staff/reception/appointment_information.html", rows=rows)
 #Routes for doctors
+
+@app.route("/change_room")
+def change_room():
+    session.pop('roomid', None)
+    return redirect("/doctor")
 @app.route("/doctor")
 def doctor():
     # connect to database
