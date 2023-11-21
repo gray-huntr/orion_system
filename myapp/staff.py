@@ -36,7 +36,7 @@ def staff_login():
                     elif category == "Pharmacist":
                         return redirect("/pharmacist")
                     elif category == "Admin":
-                        return redirect("/admin")
+                        return redirect("/client_management")
                     else:
                         flash("Error occurred", "warning")
                         return redirect("/staff_login")
@@ -98,7 +98,7 @@ def password_change():
 #     Routes for receptionists
 @app.route("/reception")
 def reception():
-    return render_template("staff/reception/receptionist.html")
+    return render_template("staff/reception/appointments.html")
 
 
 @app.route("/register_patient", methods=['POST', 'GET'])
@@ -232,7 +232,8 @@ def walkins():
     else:
         return render_template("staff/reception/walk-ins.html")
 
-@app.route("/appointment_information", methods=['POST','GET'])
+
+@app.route("/appointment_information", methods=['POST', 'GET'])
 def appointment_information():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -253,17 +254,22 @@ def appointment_information():
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/appointment_information")
     else:
-        cursor.execute("select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
-                       "appointments.status, patients.fullname from appointments inner join patients on "
-                       "appointments.patientId = patients.patientId")
+        cursor.execute(
+            "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+            "appointments.status, patients.fullname from appointments inner join patients on "
+            "appointments.patientId = patients.patientId")
         rows = cursor.fetchall()
         return render_template("staff/reception/appointment_information.html", rows=rows)
-#Routes for doctors
+
+
+# Routes for doctors
 
 @app.route("/change_room")
 def change_room():
     session.pop('roomid', None)
     return redirect("/doctor")
+
+
 @app.route("/doctor")
 def doctor():
     # connect to database
@@ -353,7 +359,8 @@ def treat(id):
             tests = cursor.fetchall()
             return render_template("staff/doctors/treat.html", rows=rows, tests=tests)
 
-@app.route("/treated_patients", methods=["POST",'GET'])
+
+@app.route("/treated_patients", methods=["POST", 'GET'])
 def treated_patients():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -363,7 +370,7 @@ def treated_patients():
     if request.method == 'POST':
         id = request.form['id']
 
-        cursor.execute("select * from treatment where treatmentid =%s or patientid = %s",(id, id))
+        cursor.execute("select * from treatment where treatmentid =%s or patientid = %s", (id, id))
         if cursor.rowcount == 0:
             flash("There is no treatment record with the given id, try another", "danger")
             return redirect("/treated_patients")
@@ -379,8 +386,9 @@ def treated_patients():
             flash("You have not treated any patients", "info")
             return render_template("staff/doctors/treated.html")
 
+
 # Route for pharmacist
-@app.route("/pharmacist", methods=['POST','GET'])
+@app.route("/pharmacist", methods=['POST', 'GET'])
 def pharmacist():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -391,10 +399,11 @@ def pharmacist():
         action = request.form['action']
         if action == 'search':
             search_term = request.form['search_term']
-            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription, treatment.appointmentid"
-                           " from treatment inner join patients on treatment.patientId = patients.patientId inner join appointments on treatment.appointmentid = appointments.appointmentId "
-                           "where (treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Pharmacist' ",
-                           (search_term, search_term, '%' + search_term + '%'))
+            cursor.execute(
+                "select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription, treatment.appointmentid"
+                " from treatment inner join patients on treatment.patientId = patients.patientId inner join appointments on treatment.appointmentid = appointments.appointmentId "
+                "where (treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Pharmacist' ",
+                (search_term, search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
                 return render_template("staff/pharmacist/pharmacist.html", rows=rows)
@@ -414,8 +423,8 @@ def pharmacist():
         return render_template("staff/pharmacist/pharmacist.html")
 
 
-#Routes for cashier
-@app.route("/cashier", methods=['POST','GET'])
+# Routes for cashier
+@app.route("/cashier", methods=['POST', 'GET'])
 def cashier():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -431,7 +440,7 @@ def cashier():
                            "inner join patients on treatment.patientId = patients.patientId "
                            "inner join appointments on appointments.appointmentId = treatment.appointmentid "
                            "where (patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Cashier'",
-                           ( search_term, '%' + search_term + '%'))
+                           (search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
                 cursor.execute("select * from tests")
@@ -447,11 +456,12 @@ def cashier():
             test_cost = request.form['test_cost']
             total = request.form['total']
 
-            cursor.execute("insert into billing(patientId, appointmentid, test_cost, total, cashier_id) VALUES (%s,%s,%s,%s,%s)",
-                           (patient_id, appointment_id, test_cost, total, session['staffId']))
-            cursor.execute("update treatment set discharge_date = curdate()  where treatmentid = %s",  treatment_id)
+            cursor.execute(
+                "insert into billing(patientId, appointmentid, test_cost, total, cashier_id) VALUES (%s,%s,%s,%s,%s)",
+                (patient_id, appointment_id, test_cost, total, session['staffId']))
+            cursor.execute("update treatment set discharge_date = curdate()  where treatmentid = %s", treatment_id)
             cursor.execute("update appointments set status = %s where appointmentId = %s",
-                           ( "Discharged", appointment_id))
+                           ("Discharged", appointment_id))
             conn.commit()
             flash("Patient has been billed successfully", "info")
             return redirect("/cashier")
@@ -461,7 +471,8 @@ def cashier():
         tests = cursor.fetchall()
         return render_template("staff/cashier/cashier.html", tests=tests)
 
-@app.route("/cleared", methods=['POST','GET'])
+
+@app.route("/cleared", methods=['POST', 'GET'])
 def cleared():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -484,9 +495,11 @@ def cleared():
             flash("The search term you used does not exist in your records", "info")
             return redirect("/cleared")
     else:
-        cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
-                       "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
-                       "inner join treatment on billing.patientId = treatment.patientId where billing.cashier_id = %s", session['staffId'])
+        cursor.execute(
+            "select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
+            "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+            "inner join treatment on billing.patientId = treatment.patientId where billing.cashier_id = %s",
+            session['staffId'])
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/cashier/cleared.html", rows=rows)

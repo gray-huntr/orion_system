@@ -30,7 +30,6 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-
         cursor.execute("select * from patients where email = %s and password = %s", (email, password))
         if cursor.rowcount == 0:
             flash("Incorrect username or password, try again", "warning")
@@ -54,7 +53,7 @@ def login():
 # Route for the patient page
 @app.route("/patient")
 def patient():
-    return render_template("patients/patient.html")
+    return render_template("patients/appointments.html")
 
 
 @app.route("/appointments/<action>", methods=['POST', 'GET'])
@@ -72,7 +71,7 @@ def appointments(action):
             time = request.form['time']
 
             cursor.execute("insert into appointments(appointmentId, patientId, time, category) VALUES (%s, %s,%s,%s)",
-                           (appointment_id,session['patientId'], time, 'online'))
+                           (appointment_id, session['patientId'], time, 'online'))
             conn.commit()
             old_id += 1
             # Save the new appointment id to file
@@ -95,6 +94,7 @@ def appointments(action):
         conn.commit()
         return redirect("/appointments/view")
 
+
 @app.route("/my_billings")
 def my_billings():
     # connect to database
@@ -110,6 +110,7 @@ def my_billings():
         rows = cursor.fetchall()
         return render_template("patients/billing.html", rows=rows)
 
+
 @app.route("/treatment_report")
 def treatment_report():
     # connect to database
@@ -124,7 +125,6 @@ def treatment_report():
     elif cursor.rowcount > 0:
         rows = cursor.fetchall()
         return render_template("patients/treatment_report.html", rows=rows)
-
 
 
 @app.route("/logout_patient")

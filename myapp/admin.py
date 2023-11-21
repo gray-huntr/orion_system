@@ -4,17 +4,18 @@ import pymysql
 from fpdf import FPDF
 
 
-
 # Route for the admin page
-@app.route("/admin")
+@app.route("/client_management")
 def admin():
-    return render_template("admin/admin.html")
+    return render_template("admin/client_management.html")
+
 
 @app.route("/reports")
 def reports():
     return render_template("admin/reports.html")
 
-@app.route("/staff_management/<action>", methods=['POST','GET'])
+
+@app.route("/staff_management/<action>", methods=['POST', 'GET'])
 def staff_management(action):
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -39,7 +40,7 @@ def staff_management(action):
             elif cursor.rowcount == 0:
                 cursor.execute("insert into staff(staffId, fullName, email, number, password, category) "
                                "values (%s,%s,%s,%s,%s,%s)",
-                               (staff_id,name,email,number,password,category))
+                               (staff_id, name, email, number, password, category))
                 conn.commit()
                 old_id += 1
                 # Save the new appointment id to file
@@ -74,7 +75,7 @@ def staff_management(action):
         return redirect("/staff_management/add")
 
 
-@app.route("/client_management", methods=['POST','GET'])
+@app.route("/client_management", methods=['POST', 'GET'])
 def client_management():
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -98,6 +99,7 @@ def client_management():
             rows = cursor.fetchall()
             return render_template("admin/client_management.html", rows=rows)
 
+
 @app.route("/appointment_management")
 def appointment_management():
     # connect to database
@@ -110,6 +112,7 @@ def appointment_management():
                    "appointments.patientId = patients.patientId")
     rows = cursor.fetchall()
     return render_template("admin/appointment_management.html", rows=rows)
+
 
 @app.route("/treatment_records")
 def treatment_records():
@@ -132,14 +135,15 @@ def billing():
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
-                   "staff.fullname, billing.date from billing inner join patients on billing.patientId = patients.patientId inner join staff "
-                   "on billing.cashier_id = staff.staffId")
+    cursor.execute(
+        "select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
+        "staff.fullname, billing.date from billing inner join patients on billing.patientId = patients.patientId inner join staff "
+        "on billing.cashier_id = staff.staffId")
     rows = cursor.fetchall()
     return render_template("admin/billings.html", rows=rows)
 
 
-@app.route("/search/<category>", methods=['POST','GET'])
+@app.route("/search/<category>", methods=['POST', 'GET'])
 def search(category):
     # connect to database
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -194,13 +198,14 @@ def search(category):
             "select billing.billingid, patients.fullname, billing.appointmentid, billing.test_cost, billing.total,"
             "staff.fullname, billing.date from billing inner join patients on billing.patientId = patients.patientId inner join staff "
             "on billing.cashier_id = staff.staffId where billing.billingid = %s or patients.fullname like %s or staff.fullname like %s",
-            (search_term, '%' + search_term + '%','%' + search_term + '%'))
+            (search_term, '%' + search_term + '%', '%' + search_term + '%'))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("admin/billings.html", rows=rows)
         elif cursor.rowcount == 0:
             flash("There is no record with the specified search term, try again", "info")
             return redirect("/billing")
+
 
 @app.route("/report/<category>")
 def report(category):
