@@ -13,7 +13,8 @@
 <body>
 {%include 'staff/doctors/doctor_nav.html'%}
 <div class="container">{%include 'msg.html'%}</div>
-<section class="signup-form  col-md-6">
+<section class="row" >
+    <div class="col-md-9 signup-form">
     {%for row in rows%}
     <form action="/treat/{{row [0]}}" method="post">
         <div class="col">
@@ -37,24 +38,58 @@
         </div>
         <br>
         <div class="row">
-            <div class="ml-3">
-                <textarea name="symptoms" class="rounded" cols="30" rows="10" placeholder="Enter patient's symptoms here"></textarea>
+            <div class="col">
+                <textarea name="symptoms" class="form-control" cols="25" rows="10" placeholder="Enter patient's symptoms here"></textarea>
             </div>
-            <div class="ml-4">
-                <textarea name="diagnosis" class="rounded" cols="30" rows="10" placeholder="Enter Diagnosis here"></textarea>
+            <div class="col">
+                <textarea name="diagnosis" class="form-control" cols="25" rows="10" placeholder="Enter Diagnosis here"></textarea>
             </div>
-        </div>
-        <div class="row">
-            <div class="ml-3">
-                <textarea name="prescription" class="rounded" cols="30" rows="10" placeholder="Enter prescription here"></textarea>
+            <div class="col">
+                <textarea name="prescription" class="form-control" cols="25" rows="10" placeholder="Enter prescription here"></textarea>
             </div>
-            <div class="ml-4">
-                <textarea name="tests" class="rounded" cols="30" rows="10" placeholder="Enter Tests done here"></textarea>
+            <div class="col">
+                <textarea name="tests" id="selectedValues" class=" form-control" cols="25" rows="10" readonly placeholder="Select the tests done from the left panel"></textarea>
             </div>
         </div>
         <button class="cta-btn">Submit</button>
     </form>
     {%endfor%}
+    </div>
+
+    <div class="col-md-2">
+        <div class="">
+            <label>Select the tests done below</label><br>
+            {%for row in tests%}
+            <input type="checkbox" class="myCheckbox" value="{{row [1]}}" data-valuetwo="{{row [2]}}"> <label>{{row [1]}}</label><br>
+            {%endfor%}
+        </div>
+    </div>
 </section>
+<script>
+// Get all checkboxes by class
+    var checkboxes = document.querySelectorAll('.myCheckbox');
+
+    // Get the textarea to display selected values
+    var textarea = document.getElementById('selectedValues');
+
+    // Function to update textarea with selected values
+    function updateTextarea() {
+        var selectedValues = [];
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedValues.push(checkbox.value);
+            }
+        });
+        textarea.value = selectedValues.join('\n');
+    }
+
+    // Attach event listeners to checkboxes
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            updateTextarea();
+        });
+    });
+</script>
+
 </body>
 </html>

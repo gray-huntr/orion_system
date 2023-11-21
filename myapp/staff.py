@@ -32,9 +32,11 @@ def staff_login():
                     elif category == "Receptionist":
                         return redirect("/reception")
                     elif category == "Cashier":
-                        return render_template("staff/cashier/cashier.html")
+                        return redirect("/cashier")
                     elif category == "Pharmacist":
                         return redirect("/pharmacist")
+                    elif category == "Admin":
+                        return redirect("/admin")
                     else:
                         flash("Error occurred", "warning")
                         return redirect("/staff_login")
@@ -42,11 +44,7 @@ def staff_login():
             flash("Error occurred", "danger")
             return redirect("/staff_login")
     else:
-        if 'patientId' in session:
-            session.pop('patientId', None)
-            return redirect("/staff_login")
-        else:
-            return render_template("staff/staff_login.html")
+        return render_template("staff/staff_login.html")
 
 
 @app.route("/password_change", methods=['POST', 'GET'])
@@ -94,7 +92,7 @@ def password_change():
                     flash("New passwords do not match", "danger")
                     return redirect("/password_change")
     else:
-        return render_template("password_change.html ")
+        return render_template("password_change.html")
 
 
 #     Routes for receptionists
@@ -156,11 +154,13 @@ def appointment_search():
         cursor.execute("select appointments.*, patients.* from appointments "
                        "inner join patients on appointments.patientId = patients.patientId "
                        "where appointments.category = 'online' and (patients.patientId = %s or patients.fullname like %s "
-                       "or appointments.appointmentId = %s) ",
+                       "or appointments.appointmentId = %s) and  appointments.time >= current_date",
                        (id, '%' + id + '%', id))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/reception/appointments.html", rows=rows)
+            cursor.execute("select * from rooms where category = 'online'")
+            rooms = cursor.fetchall()
+            return render_template("staff/reception/appointments.html", rows=rows, rooms=rooms)
         elif cursor.rowcount == 0:
             flash(f"There is no appointment with the search term: {id}", "info")
             return redirect("/appointment_search")
@@ -179,7 +179,8 @@ def assign_room(category, id):
         if request.method == 'POST':
             room = request.form['room']
 
-            cursor.execute("update appointments set roomNo = %s where appointmentId = %s", (room, id))
+            cursor.execute("update appointments set roomNo = %s, status = %s where appointmentId = %s",
+                           (room, "Examination room", id))
             conn.commit()
             flash("Room assigned successfully", "success")
             return redirect("/appointment_search")
@@ -194,7 +195,7 @@ def assign_room(category, id):
                 appointment_id = "A" + str(old_id)
             room = request.form['room']
             patient_id = id
-            status = "attending"
+            status = "Examination room"
             category = "walk-in"
 
             cursor.execute("insert into appointments(appointmentId, patientId, roomNo, status, category) "
@@ -222,13 +223,41 @@ def walkins():
                        (id, '%' + id + '%'))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/reception/walk-ins.html", rows=rows)
+            cursor.execute("select * from rooms where category = 'walk-in'")
+            rooms = cursor.fetchall()
+            return render_template("staff/reception/walk-ins.html", rows=rows, rooms=rooms)
         elif cursor.rowcount == 0:
             flash("Their id no patient with the given id or name, try again", "warning")
             return redirect("/walkins")
     else:
         return render_template("staff/reception/walk-ins.html")
 
+@app.route("/appointment_information", methods=['POST','GET'])
+def appointment_information():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        search_term = request.form['search_term']
+        cursor.execute(
+            "select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+            "appointments.status, patients.fullname from appointments inner join patients on "
+            "appointments.patientId = patients.patientId where appointments.appointmentId = %s or patients.patientId"
+            " = %s or patients.fullname like %s", (search_term, search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/reception/appointment_information.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("There is no record with the specified search term, try again", "info")
+            return redirect("/appointment_information")
+    else:
+        cursor.execute("select appointments.appointmentId, appointments.patientId, appointments.roomno, appointments.time, "
+                       "appointments.status, patients.fullname from appointments inner join patients on "
+                       "appointments.patientId = patients.patientId")
+        rows = cursor.fetchall()
+        return render_template("staff/reception/appointment_information.html", rows=rows)
 #Routes for doctors
 @app.route("/doctor")
 def doctor():
@@ -240,7 +269,7 @@ def doctor():
     if 'roomid' in session:
         cursor.execute("select appointments.appointmentId, patients.patientId, patients.fullname, patients.number "
                        "from appointments inner join patients on appointments.patientId = patients.patientId "
-                       "where appointments.roomNo = %s", session['roomid'])
+                       "where appointments.roomNo = %s and appointments.status = 'Examination room'", session['roomid'])
         if cursor.rowcount == 0:
             flash("There are no appointments assigned to this room", "info")
             return render_template("staff/doctors/doctorsportal.html")
@@ -296,6 +325,8 @@ def treat(id):
                        "diagnosis, Prescription, test_done, doctorid) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                        (treatment_id, patient_id, appointment_id, symptoms, session['roomid'], diagnosis, prescription,
                         tests, session['staffId']))
+        cursor.execute("update appointments set status = %s where appointmentId = %s",
+                       ("Pharmacist", appointment_id))
         conn.commit()
         old_id += 1
         # Save the new treatment id to file
@@ -313,7 +344,9 @@ def treat(id):
             return redirect("/doctor")
         elif cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/doctors/treat.html", rows=rows)
+            cursor.execute("select * from tests")
+            tests = cursor.fetchall()
+            return render_template("staff/doctors/treat.html", rows=rows, tests=tests)
 
 @app.route("/treated_patients", methods=["POST",'GET'])
 def treated_patients():
@@ -353,10 +386,9 @@ def pharmacist():
         action = request.form['action']
         if action == 'search':
             search_term = request.form['search_term']
-            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription"
-                           " from treatment "
-                           "inner join patients on treatment.patientId = patients.patientId "
-                           "where treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s ",
+            cursor.execute("select treatment.treatmentid, patients.fullname, patients.patientId, treatment.diagnosis, treatment.prescription, treatment.appointmentid"
+                           " from treatment inner join patients on treatment.patientId = patients.patientId inner join appointments on treatment.appointmentid = appointments.appointmentId "
+                           "where (treatment.appointmentid = %s or patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Pharmacist' ",
                            (search_term, search_term, '%' + search_term + '%'))
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
@@ -366,12 +398,97 @@ def pharmacist():
                 return redirect("/pharmacist")
         elif action == 'update':
             id = request.form['id']
+            app_id = request.form['app_id']
             cursor.execute("update treatment set pharmacist_id = %s where treatmentid = %s", (session['staffId'], id))
+            cursor.execute("update appointments set status = %s where appointmentId = %s",
+                           ("Cashier", app_id))
             conn.commit()
             flash("Direct patient to cashier", "info")
             return redirect("/pharmacist")
     else:
         return render_template("staff/pharmacist/pharmacist.html")
+
+
+#Routes for cashier
+@app.route("/cashier", methods=['POST','GET'])
+def cashier():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        action = request.form['action']
+        if action == 'search':
+            search_term = request.form['search_term']
+            cursor.execute("select treatment.test_done, patients.fullname, patients.patientId, "
+                           "treatment.prescription, treatment.appointmentid, treatment.treatmentid from treatment "
+                           "inner join patients on treatment.patientId = patients.patientId "
+                           "inner join appointments on appointments.appointmentId = treatment.appointmentid "
+                           "where (patients.patientId = %s or patients.fullname like %s) and appointments.status = 'Cashier'",
+                           ( search_term, '%' + search_term + '%'))
+            if cursor.rowcount > 0:
+                rows = cursor.fetchall()
+                cursor.execute("select * from tests")
+                tests = cursor.fetchall()
+                return render_template("staff/cashier/cashier.html", rows=rows, tests=tests)
+            elif cursor.rowcount == 0:
+                flash("There is no record with the given search term", "info")
+                return redirect("/cashier")
+        elif action == 'clear':
+            patient_id = request.form['patient_id']
+            appointment_id = request.form['appointment_id']
+            treatment_id = request.form['treatment_id']
+            test_cost = request.form['test_cost']
+            total = request.form['total']
+
+            cursor.execute("insert into billing(patientId, appointmentid, test_cost, total, cashier_id) VALUES (%s,%s,%s,%s,%s)",
+                           (patient_id, appointment_id, test_cost, total, session['staffId']))
+            cursor.execute("update treatment set discharge_date = curdate()  where treatmentid = %s",  treatment_id)
+            cursor.execute("update appointments set status = %s where appointmentId = %s",
+                           ( "Discharged", appointment_id))
+            conn.commit()
+            flash("Patient has been billed successfully", "info")
+            return redirect("/cashier")
+
+    else:
+        cursor.execute("select * from tests")
+        tests = cursor.fetchall()
+        return render_template("staff/cashier/cashier.html", tests=tests)
+
+@app.route("/cleared", methods=['POST','GET'])
+def cleared():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        search_term = request.form['search_term']
+
+        cursor.execute(
+            "select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
+            "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+            " where billing.cashier_id = %s "
+            "and (billing.patientId = %s or patients.fullname like %s)",
+            (session['staffId'], search_term, '%' + search_term + '%'))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/cashier/cleared.html", rows=rows)
+        else:
+            flash("The search term you used does not exist in your records", "info")
+            return redirect("/cleared")
+    else:
+        cursor.execute("select billing.patientId, billing.appointmentid, billing.test_cost, billing.total, billing.date, "
+                       "patients.fullname from billing inner join patients on billing.patientId = patients.patientId "
+                       "inner join treatment on billing.patientId = treatment.patientId where billing.cashier_id = %s", session['staffId'])
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/cashier/cleared.html", rows=rows)
+        else:
+            flash("You have not cleared any patients", "info")
+            return render_template("staff/cashier/cleared.html")
+
 
 # Route for the staff logout page
 @app.route("/logout_staff")

@@ -39,7 +39,7 @@ def login():
             rows = cursor.fetchall()
             for row in rows:
                 session['patientId'] = row[0]
-                if row[9] == 1:
+                if row[10] == 1:
                     flash("Please set a new password before continuing", "info")
                     return redirect("/password_change")
                 else:
@@ -48,46 +48,8 @@ def login():
             flash("Error occurred", "danger")
             return redirect("/login")
     else:
-        if 'staffId' in session:
-            session.pop('staffId', None)
-            return redirect('/login')
-        else:
-            return render_template("patients/login.html")
+        return render_template("patients/index.html")
 
-# Route for the signup page
-@app.route("/signup", methods=['POST', 'GET'])
-def signup():
-    # connect to database
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    if request.method == 'POST':
-        fullname = request.form['fullname']
-        email = request.form['email']
-        number = request.form['number']
-        password = request.form['password']
-        repeat_pass = request.form['repeatPass']
-
-        cursor.execute("select * from patients where email = %s", email)
-        if cursor.rowcount > 0:
-            flash("Email already exists, try another one", "info")
-            return redirect("/signup")
-        elif cursor.rowcount == 0:
-            if password == repeat_pass:
-                cursor.execute("insert into patients(fullname, email, number, password) values (%s,%s,%s,%s)",
-                               (fullname, email, number, password))
-                conn.commit()
-                flash("Sign up successfull", "success")
-                return redirect("/signup")
-            elif password != repeat_pass:
-                flash("Passwords do not match", "danger")
-                return redirect("/signup")
-        else:
-            flash("Error occured", "danger")
-            return redirect("/signup")
-    else:
-        return render_template("patients/signup.html")
 
 # Route for the patient page
 @app.route("/patient")
@@ -116,7 +78,7 @@ def appointments(action):
             # Save the new appointment id to file
             with open("myapp/db_ids/appointment_id", "w") as file:
                 file.write(str(old_id))
-            flash("Appointment booked successfully", "success")
+            flash("Appointment booked successfully,", "success")
             return redirect("/appointments/view")
         else:
             cursor.execute("select * from appointments where patientId = %s", session['patientId'])
@@ -132,6 +94,38 @@ def appointments(action):
         cursor.execute("update appointments set status = 'Cancelled' where appointmentId = %s", id)
         conn.commit()
         return redirect("/appointments/view")
+
+@app.route("/my_billings")
+def my_billings():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from billing where patientId = %s", session['patientId'])
+    if cursor.rowcount == 0:
+        flash("There are no billing records for you", "info")
+        return render_template("patients/billing.html")
+    elif cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("patients/billing.html", rows=rows)
+
+@app.route("/treatment_report")
+def treatment_report():
+    # connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from treatment where patientId = %s", session['patientId'])
+    if cursor.rowcount == 0:
+        flash("You dont have any treatment records", "info")
+        return render_template("patients/treatment_report.html")
+    elif cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("patients/treatment_report.html", rows=rows)
+
+
 
 @app.route("/logout_patient")
 def logout_patient():

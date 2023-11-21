@@ -43,12 +43,14 @@
                 <td>{{row [4]}}</td>
                 <td>{{row [5]}}</td>
                 {% if row [5] == 'online'%}
-                <td>
-                    <form action="/appointments/cancel" method="post">
-                        <input type="hidden" value="{{row [0]}}" name="id">
-                        <button type="submit" class="btn btn-danger">Cancel</button>
-                    </form>
-                </td>
+                    {%if row[4] == 'Booked' %}
+                    <td>
+                        <form action="/appointments/cancel" method="post">
+                            <input type="hidden" value="{{row [0]}}" name="id">
+                            <button type="submit" class="btn btn-danger">Cancel</button>
+                        </form>
+                    </td>
+                    {%endif%}
                 {%else%}
                 <td>
 
