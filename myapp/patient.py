@@ -53,78 +53,94 @@ def login():
 # Route for the patient page
 @app.route("/patient")
 def patient():
-    return render_template("patients/appointments.html")
+    if 'patientId' in session:
+        return render_template("patients/appointments.html")
+    else:
+        flash("Please login first", "info")
+        return redirect("/login")
 
 
 @app.route("/appointments/<action>", methods=['POST', 'GET'])
 def appointments(action):
-    # connect to database
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    if action == 'view':
-        if request.method == 'POST':
-            with open("myapp/db_ids/appointment_id", "r") as file:
-                old_id = int(file.read())
-                appointment_id = "A" + str(old_id)
-            time = request.form['time']
+    if 'patientId' in session:
+        # connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        if action == 'view':
+            if request.method == 'POST':
+                with open("myapp/db_ids/appointment_id", "r") as file:
+                    old_id = int(file.read())
+                    appointment_id = "A" + str(old_id)
+                time = request.form['time']
 
-            cursor.execute("insert into appointments(appointmentId, patientId, time, category) VALUES (%s, %s,%s,%s)",
-                           (appointment_id, session['patientId'], time, 'online'))
+                cursor.execute("insert into appointments(appointmentId, patientId, time, category) VALUES (%s, %s,%s,%s)",
+                               (appointment_id, session['patientId'], time, 'online'))
+                conn.commit()
+                old_id += 1
+                # Save the new appointment id to file
+                with open("myapp/db_ids/appointment_id", "w") as file:
+                    file.write(str(old_id))
+                flash("Appointment booked successfully,", "success")
+                return redirect("/appointments/view")
+            else:
+                cursor.execute("select * from appointments where patientId = %s", session['patientId'])
+                if cursor.rowcount == 0:
+                    flash("You haven't made any appointments yet", "info")
+                    return render_template("patients/appointments.html")
+                elif cursor.rowcount > 0:
+                    rows = cursor.fetchall()
+                    return render_template("patients/appointments.html", rows=rows)
+        elif action == 'cancel':
+            id = request.form['id']
+
+            cursor.execute("update appointments set status = 'Cancelled' where appointmentId = %s", id)
             conn.commit()
-            old_id += 1
-            # Save the new appointment id to file
-            with open("myapp/db_ids/appointment_id", "w") as file:
-                file.write(str(old_id))
-            flash("Appointment booked successfully,", "success")
             return redirect("/appointments/view")
-        else:
-            cursor.execute("select * from appointments where patientId = %s", session['patientId'])
-            if cursor.rowcount == 0:
-                flash("You haven't made any appointments yet", "info")
-                return render_template("patients/appointments.html")
-            elif cursor.rowcount > 0:
-                rows = cursor.fetchall()
-                return render_template("patients/appointments.html", rows=rows)
-    elif action == 'cancel':
-        id = request.form['id']
-
-        cursor.execute("update appointments set status = 'Cancelled' where appointmentId = %s", id)
-        conn.commit()
-        return redirect("/appointments/view")
+    else:
+        flash("Please login first", "info")
+        return redirect("/login")
 
 
 @app.route("/my_billings")
 def my_billings():
-    # connect to database
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    cursor.execute("select * from billing where patientId = %s", session['patientId'])
-    if cursor.rowcount == 0:
-        flash("There are no billing records for you", "info")
-        return render_template("patients/billing.html")
-    elif cursor.rowcount > 0:
-        rows = cursor.fetchall()
-        return render_template("patients/billing.html", rows=rows)
+    if 'patientId' in session:
+        # connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("select * from billing where patientId = %s", session['patientId'])
+        if cursor.rowcount == 0:
+            flash("There are no billing records for you", "info")
+            return render_template("patients/billing.html")
+        elif cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("patients/billing.html", rows=rows)
+    else:
+        flash("Please login first", "info")
+        return redirect("/login")
 
 
 @app.route("/treatment_report")
 def treatment_report():
-    # connect to database
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    cursor.execute("select * from treatment where patientId = %s", session['patientId'])
-    if cursor.rowcount == 0:
-        flash("You dont have any treatment records", "info")
-        return render_template("patients/treatment_report.html")
-    elif cursor.rowcount > 0:
-        rows = cursor.fetchall()
-        return render_template("patients/treatment_report.html", rows=rows)
+    if 'patientId' in session:
+        # connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("select * from treatment where patientId = %s", session['patientId'])
+        if cursor.rowcount == 0:
+            flash("You dont have any treatment records", "info")
+            return render_template("patients/treatment_report.html")
+        elif cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("patients/treatment_report.html", rows=rows)
+    else:
+        flash("Please login first", "info")
+        return redirect("/login")
 
 
 @app.route("/logout_patient")
