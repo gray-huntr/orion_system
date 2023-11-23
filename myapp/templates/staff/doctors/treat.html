@@ -59,9 +59,7 @@
         <div class="">
             <h3>Select the tests done below</h3><br>
             {%for row in tests%}
-            <input type="checkbox" class="myCheckbox" value="{{row [1]}}" data-valuetwo="{{row [2]}}">
-            <h3>{{row
-                [1]}}</h3><br>
+            <input type="checkbox" class="myCheckbox" value="{{row [1]}}" data-valuetwo="{{row [2]}}"> <h3>{{row [1]}}</h3>
             {%endfor%}
         </div>
     </div>
